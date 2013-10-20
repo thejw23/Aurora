@@ -1,0 +1,23 @@
+{
+    "name": "aurora/aurora",
+    "description": "Fast and easy to use php ORM",
+    "keywords": ["orm"],
+    "homepage": "http://github.com/mvader/Aurora",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "José Miguel Molina",
+            "email": "hi@mvader.me",
+            "homepage": "http://mvader.me/"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "monolog/monolog": "~1.6"
+    },
+	"autoload": {
+		"psr-0": {
+			"Aurora": "."
+		}
+	}
+}
