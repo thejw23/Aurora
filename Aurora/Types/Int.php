@@ -26,4 +26,9 @@ class Int extends \Aurora\Type
 		}
 		return 'INTEGER';
 	}
+    
+    public function parseValue($value)
+    {
+        return (int) $value;
+    }
 }

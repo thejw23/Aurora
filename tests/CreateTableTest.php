@@ -4,6 +4,7 @@ use \Aurora\Table;
 use \Aurora\Column;
 use \Aurora\Types\Int;
 use \Aurora\Types\String;
+use \Aurora\Query;
 
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config.php';
 
@@ -50,12 +51,33 @@ class CreateTableTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(true, $user->save());
     }
     
-    public function testGetRow()
+    public function testGetAllRows()
     {
-        
+        $users = User::query()->all();
+        $this->assertEquals("Bob Doe", $users[0]->user_name);
     }
     
-    /* MORE GET TESTS */
+    public function testGetFirstRow()
+    {
+        $user = User::query()->first();
+        $this->assertEquals("Bob Doe", $user->user_name);
+    }
+    
+    public function testGetRow()
+    {
+        $user = User::query()->get(0);
+        $this->assertEquals("Bob Doe", $user->user_name);
+        $user = User::query()->get(1);
+        $this->assertEquals(false, $user);
+    }
+    
+    public function testLimitRow()
+    {
+        $user = User::query()->limit(0, 1);
+        $this->assertEquals("Bob Doe", $user->user_name);
+        $users = User::query()->limit(2, 6);
+        $this->assertEquals(0, count($users));
+    }
     
     public function testUpdateRow()
     {

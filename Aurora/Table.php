@@ -65,6 +65,14 @@ abstract class Table
         }
     }
     
+    public function parseValue($property, $value)
+    {
+        if ($this->__isset($property)) {
+            return $this->$property->type->parseValue($value);
+        } else 
+            throw new \RuntimeException("{$property} property does not exist.");
+    }
+    
     final public function getName()
     {
         return (!is_null($this->name)) ? $this->name : 'UNNAMED';
@@ -141,17 +149,17 @@ abstract class Table
             return \Aurora\Dbal::query($sql, $args, false);
         } else {
             $sql = 'UPDATE ' . $this->name . ' SET ';
-            $primaryKey = null;
+            $primaryKeys = array();
             $columnsToInsert = array_filter(
                 $this->getColumns(),
-                function($col) use (&$primaryKey) {
+                function($col) use (&$primaryKeys) {
                     if ($col->primaryKey)
-                        $primaryKey = $col;
+                        $primaryKeys[] = $col;
                     return !is_null($col->value) && !$col->primaryKey;
                 }
             );
             
-            if (is_null($primaryKey))
+            if (count($primaryKeys) == 0)
                 throw new \RuntimeException('Error saving the object. There is not value for the primary key field.');
             
             $args = array();
@@ -163,8 +171,12 @@ abstract class Table
                 $columnsToInsert
             ));
             
-            $sql .= "{$fields} WHERE {$primaryKey->name} = ?";
-            $args[] = $primaryKey->value;
+            $sql .= "{$fields} WHERE ";
+            $sql .= \Aurora\SQL\Util::andEqualColumns($primaryKeys);
+            
+            foreach ($primaryKeys as $key) {
+                $args[] = $key->value;
+            }
 
             return \Aurora\Dbal::query($sql, $args, false);
         }
@@ -173,19 +185,23 @@ abstract class Table
     final public function remove()
     {
         $sql = 'DELETE FROM ' . $this->name . ' WHERE ';
-        $primaryKey = null;
+        $primaryKeys = array();
         foreach ($this->getColumns() as $col) {
             if ($col->primaryKey) {
-                $primaryKey = $col;
-                break;
+                $primaryKeys[] = $col;
             }
         }
         
-        if (is_null($primaryKey))
+        if (count($primaryKeys) == 0)
             throw new \RuntimeException('Error deleting the object. There is not value for the primary key field.');
         
-        $sql .= "{$primaryKey->name} = ?";
-        $args = array($primaryKey->value);
+        $sql .= \Aurora\SQL\Util::andEqualColumns($primaryKeys);
+        $args = array_map(
+            function($col) {
+                return $col->value;
+            },
+            $primaryKeys
+        );
 
         return \Aurora\Dbal::query($sql, $args, false);
     }
@@ -211,5 +227,12 @@ abstract class Table
         $strValue .= ')';
         
         return $strValue;
+    }
+    
+    final public static function query()
+    {
+        $model = get_called_class();
+        $instance = $model::instance();
+        return new \Aurora\Query($instance->name, $model);
     }
 }

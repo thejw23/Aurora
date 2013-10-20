@@ -15,4 +15,9 @@ class Blob extends \Aurora\Type
         
         return 'BLOB';
     }
+    
+    public function parseValue($value)
+    {
+        return $value;
+    }
 }

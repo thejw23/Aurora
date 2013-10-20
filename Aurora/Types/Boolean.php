@@ -4,10 +4,6 @@ namespace Aurora\Types;
 
 class Boolean extends \Aurora\Types\Int
 {
-	public function __construct() {
-		
-	}
-	
 	public function getRepresentation()
 	{
 		$driver = $this->getDriver();
@@ -17,4 +13,9 @@ class Boolean extends \Aurora\Types\Int
 		}
 		return 'INTEGER';
 	}
+    
+    public function parseValue($value)
+    {
+        return (int) $value;
+    }
 }

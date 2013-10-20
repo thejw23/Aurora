@@ -25,4 +25,9 @@ class String extends \Aurora\Type
         }
         return 'TEXT';
     }
+    
+    public function parseValue($value)
+    {
+        return (string) $value;
+    }
 }

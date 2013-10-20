@@ -27,4 +27,9 @@ class Decimal extends \Aurora\Type
         }
         return 'REAL';
     }
+    
+    public function parseValue($value)
+    {
+        return (float) $value;
+    }
 }

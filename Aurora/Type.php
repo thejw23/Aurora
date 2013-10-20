@@ -6,6 +6,7 @@ abstract class Type
 {
 	abstract public function isValidValue($value);
 	abstract public function getRepresentation();
+    abstract public function parseValue($value);
 	
 	final public function getDriver() {
 		$driver = \Aurora\Dbal::getDriver();
