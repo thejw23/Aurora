@@ -123,6 +123,24 @@ class CreateTableTest extends PHPUnit_Framework_TestCase
             ))
             ->all();
         $this->assertEquals(2, count($users));
+        
+        $users = User::query()
+            ->filterBy(array(
+                'user_name',
+                'IN',
+                array('Michael', 'Bob Dylan')
+            ))
+            ->all();
+        $this->assertEquals(2, count($users));
+        
+        $users = User::query()
+            ->filterBy(array(
+                'user_name',
+                'LIKE',
+                'M%'
+            ))
+            ->all();
+        $this->assertEquals(1, count($users));
     }
     
     public function testDeleteRow()
