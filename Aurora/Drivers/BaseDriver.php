@@ -4,5 +4,5 @@ namespace Aurora\Drivers;
 
 abstract class BaseDriver
 {
-	abstract public function getConnection();
+    abstract public function getConnection();
 }
