@@ -32,7 +32,7 @@ class User extends Table
 $driver = new \Aurora\Drivers\MySQLDriver($config['host'], $config['db'], $config['port'], $config['user'], $config['password']);
 \Aurora\Dbal::init($driver);
 
-class CreateTableTest extends PHPUnit_Framework_TestCase
+class SimpleTableTest extends PHPUnit_Framework_TestCase
 {
     public function testCreateSimpleTable()
     {
