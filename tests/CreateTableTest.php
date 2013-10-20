@@ -89,6 +89,42 @@ class CreateTableTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(true, $user->save(true));
     }
     
+    public function testOrderBy()
+    {
+        $user = User::instance();
+        $user->user_name = "Michael";
+        $user->user_mail = 'michael@bobmail.com';
+        $user->user_password = 'supersupersecret';
+        $user->save();
+        
+        $users = User::query()->orderBy('user_id', 'DESC')->all();
+        $this->assertEquals("Michael", $users[0]->user_name);
+    }
+    
+    public function testWhere()
+    {
+        $users = User::query()->where("user_name = ?", array("Michael"))->all();
+        $this->assertEquals("Michael", $users[0]->user_name);
+    }
+    
+    public function testFilterBy()
+    {
+        $users = User::query()
+            ->filterBy(array('user_name', 'Michael'))
+            ->orderBy('user_id', 'DESC')
+            ->all();
+        $this->assertEquals("Michael", $users[0]->user_name);
+        
+        $users = User::query()
+            ->filterBy(array(
+                array('user_name', 'Michael'),
+                'OR',
+                array('user_name', 'Bob Dylan')
+            ))
+            ->all();
+        $this->assertEquals(2, count($users));
+    }
+    
     public function testDeleteRow()
     {
         $user = User::instance();

@@ -51,7 +51,8 @@ class Dbal
 				return false;
 			}
 		} catch (\PDOException $e) {
-			self::$conn->rollBack();
+            if (!$return)
+			    self::$conn->rollBack();
 			throw new \Aurora\Error\DatabaseException("Query error: " . $e->getMessage());
 		}
 	}

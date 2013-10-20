@@ -229,6 +229,11 @@ abstract class Table
         return $strValue;
     }
     
+    final public function setInserted()
+    {
+        $this->notInserted = false;
+    }
+    
     final public static function query()
     {
         $model = get_called_class();
