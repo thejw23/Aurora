@@ -95,19 +95,13 @@ class ManyToManyTest extends PHPUnit_Framework_TestCase
 {
     public function testCreateTables()
     {
-        $user = new MTM_User();    
-        $sql = "CREATE TABLE users (user_id INTEGER NOT NULL AUTO_INCREMENT,user_name VARCHAR(80) NOT NULL UNIQUE DEFAULT '',user_mail VARCHAR(80) NOT NULL,user_password VARCHAR(80) NOT NULL,PRIMARY KEY (user_id))";
-        $this->assertEquals($sql, (string) $user);
+        $user = new MTM_User();
         $this->assertEquals(true, $user->createTable());
         
         $book = new Book();
-        $sql = "CREATE TABLE books (book_id INTEGER NOT NULL AUTO_INCREMENT,title VARCHAR(255) NOT NULL DEFAULT '',PRIMARY KEY (book_id))";
-        $this->assertEquals($sql, (string) $book);
         $this->assertEquals(true, $book->createTable());
         
         $booking = new Booking();
-        $sql = "CREATE TABLE bookings (user_id INTEGER NOT NULL,book_id INTEGER NOT NULL,booked VARCHAR(20) NOT NULL DEFAULT '',PRIMARY KEY (user_id, book_id),FOREIGN KEY (user_id) REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE,FOREIGN KEY (book_id) REFERENCES books(book_id) ON UPDATE CASCADE ON DELETE CASCADE)";
-        $this->assertEquals($sql, (string) $booking);
         $this->assertEquals(true, $booking->createTable());
     }
     
