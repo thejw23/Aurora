@@ -67,12 +67,12 @@ class OneToOneTest extends PHPUnit_Framework_TestCase
 {
     public function testCreateTables()
     {
-        $user = OTO_User::instance();    
+        $user = new OTO_User();    
         $sql = "CREATE TABLE users (user_id INTEGER NOT NULL AUTO_INCREMENT,user_name VARCHAR(80) NOT NULL UNIQUE DEFAULT '',user_mail VARCHAR(80) NOT NULL,user_password VARCHAR(80) NOT NULL,PRIMARY KEY (user_id))";
         $this->assertEquals($sql, (string) $user);
         $this->assertEquals(true, $user->createTable());
         
-        $profile = Profile::instance();
+        $profile = new Profile();
         $sql = "CREATE TABLE profiles (profile_id INTEGER NOT NULL AUTO_INCREMENT,user_id INTEGER NOT NULL UNIQUE,bio VARCHAR(255) NOT NULL DEFAULT '',PRIMARY KEY (profile_id),FOREIGN KEY (user_id) REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE)";
         $this->assertEquals($sql, (string) $profile);
         $this->assertEquals(true, $profile->createTable());
@@ -80,7 +80,7 @@ class OneToOneTest extends PHPUnit_Framework_TestCase
     
     public function testInsertRow()
     {
-        $user = OTO_User::instance();
+        $user = new OTO_User();
         $user->user_name = "Bob Doe";
         $user->user_mail = 'bobdoe@bobmail.com';
         $user->user_password = 'supersecret';
@@ -93,7 +93,7 @@ class OneToOneTest extends PHPUnit_Framework_TestCase
             ->all();
         $this->assertEquals(1, count($users));
         
-        $profile = Profile::instance();
+        $profile = new Profile();
         $profile->user_id = $user->user_id;
         $profile->bio = "Fancy ninja.";
         $this->assertEquals(true, $profile->save());
@@ -109,8 +109,8 @@ class OneToOneTest extends PHPUnit_Framework_TestCase
     
     public function testDropTable()
     {
-        $user = OTO_User::instance();
-        $profile = Profile::instance();
+        $user = new OTO_User();
+        $profile = new Profile();
         
         try {
             $this->assertEquals(true, $user->dropTable());

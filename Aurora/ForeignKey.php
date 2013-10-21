@@ -18,7 +18,7 @@ class ForeignKey
         if (!class_exists($model))
             throw new \RuntimeException("{$model} class does not exist.");
 
-        $instance = $model::instance();
+        $instance = new $model();
         if (!isset($instance->$modelField))
             throw new \RuntimeException("{$modelField} property not found for {$model}.");
 

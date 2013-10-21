@@ -16,7 +16,10 @@ function customAutoLoader( $class )
 
 spl_autoload_register('customAutoLoader');
 
-require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config.php';
+if (file_exists(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config.php'))
+    require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config.php';
+else
+    require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'mysql_config.php';
 
 $driver = new \Aurora\Drivers\MySQLDriver($config['host'], $config['db'], $config['port'], $config['user'], $config['password']);
 \Aurora\Dbal::init($driver);

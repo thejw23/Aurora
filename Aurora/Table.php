@@ -19,17 +19,9 @@ abstract class Table
         'notInserted',
     );
     
-    final protected function __construct()
+    final public function __construct()
     {
-        // Don't use constructors
-    }
-    
-    final public static function instance()
-    {
-        $class = get_called_class();
-        $classInstance = new $class();
-        $classInstance->setup();
-        return $classInstance;
+        $this->setup();
     }
     
     private function getProperties()
@@ -265,7 +257,7 @@ abstract class Table
     final public static function query()
     {
         $model = get_called_class();
-        $instance = $model::instance();
+        $instance = new $model();
         return new \Aurora\Query($instance->name, $model);
     }
 }
