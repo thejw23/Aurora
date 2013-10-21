@@ -12,6 +12,7 @@ class Column
     private $primaryKey;
     private $autoIncrement;
     private $value = null;
+    private $foreignKey = null;
     
     public function __construct(
         $type,
@@ -19,7 +20,8 @@ class Column
         $default = null,
         $unique = false,
         $primaryKey = false,
-        $autoIncrement = false
+        $autoIncrement = false,
+        $foreignKey = null
     ) {
         try {
             $this->__set('type', $type);
@@ -28,6 +30,7 @@ class Column
             $this->__set('default', $default);
             $this->__set('primaryKey', $primaryKey);
             $this->__set('autoIncrement', $autoIncrement);
+            $this->__set('foreignKey', $foreignKey);
             if (!is_null($default))
                 $this->value = $default;
         } catch (\Exception $e) {
@@ -66,6 +69,10 @@ class Column
                 if (!is_string($value))
                     throw new \RuntimeException('name property only accepts string values.');
                 break;
+            case 'foreignKey':
+                if (!($value instanceof \Aurora\ForeignKey))
+                    throw new \RuntimeException('foreignKey property only accepts \Aurora\ForeignKey values.');
+                break;
         }
         
         $this->$property = $value;
@@ -82,8 +89,6 @@ class Column
             $strValue .= " DEFAULT '{$this->default}'";
         if ($this->autoIncrement)
             $strValue .= ' AUTO_INCREMENT';
-        if ($this->primaryKey)
-            $strValue .= ' PRIMARY KEY';
             
         return $strValue;
     }
