@@ -89,7 +89,7 @@ class Column
         if (!is_null($this->default))
             $strValue .= " DEFAULT '{$this->default}'";
         if ($this->autoIncrement)
-            $strValue .= ' AUTO_INCREMENT';
+            $strValue .= (!($driver instanceof \Aurora\Drivers\SQLiteDriver)) ? 'AUTO_INCREMENT' : 'AUTOINCREMENT';
             
         return $strValue;
     }
