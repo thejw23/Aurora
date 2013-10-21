@@ -156,7 +156,8 @@ abstract class Table
             $id = null;
             $result = \Aurora\Dbal::query($sql, $args, false, $id);
             $this->notInserted = false;
-            $pk->value = $pk->type->parseValue($id);
+            if ($id !== '0')
+                $pk->value = $pk->type->parseValue($id);
             
             return $result;
         } else {
