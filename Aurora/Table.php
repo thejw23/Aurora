@@ -9,7 +9,6 @@ abstract class Table
     public $characterSet = null;
     public $collation = null;
     public $name = null;
-    private $hasPrimaryKey = false;
     private $notInserted = true;
     private static $baseProperties = array(
         'engine',
@@ -17,8 +16,7 @@ abstract class Table
         'characterSet',
         'collation',
         'name',
-        'hasPrimaryKey',
-        'notInserted'
+        'notInserted',
     );
     
     final protected function __construct()
@@ -49,6 +47,10 @@ abstract class Table
     {
         if (in_array($property, $this->getProperties()) &&
             !in_array($property, self::$baseProperties)) {
+            if ($this->$property instanceof \Aurora\Relationship && is_null($this->$property->value)) {
+                $fk = $this->$property->getForeignKey();
+                $this->$property->retrieve($this->$fk->value);
+            }
             return $this->$property->value;
         } else
             return null;
@@ -58,14 +60,12 @@ abstract class Table
     {
         if (in_array($property, $this->getProperties()) &&
             !in_array($property, self::$baseProperties)) {
-            $this->$property->value = $value;
-            if ($value instanceof Column && $value->primaryKey) {
-                $this->setPrimaryKey();
-            }
+            if ($this->$property instanceof \Aurora\Column)
+                $this->$property->value = $value;
         }
     }
     
-    public function parseValue($property, $value)
+    final public function parseValue($property, $value)
     {
         if ($this->__isset($property)) {
             return $this->$property->type->parseValue($value);
@@ -78,14 +78,7 @@ abstract class Table
         return (!is_null($this->name)) ? $this->name : 'UNNAMED';
     }
     
-    final public function setPrimaryKey()
-    {
-        if ($this->hasPrimaryKey === true)
-            throw new \Aurora\Error\CreateTableException('Table ' . $this->getName() . ' already has a primary key.');
-        $this->hasPrimaryKey = true;
-    }
-    
-    final public function getColumns()
+    final public function getColumns(array &$constraints = array(), array &$primaryKeys = array())
     {
         $columnNames = array_diff(
             $this->getProperties(),
@@ -93,15 +86,22 @@ abstract class Table
         );
         
         $columns = array();
+        
         foreach ($columnNames as $col) {
-            $columns[] = $this->$col;
-            if ($this->$col instanceof \Aurora\Column)
+            if ($this->$col instanceof \Aurora\Column) {
                 $this->$col->name = $col;
-            else
+                if ($this->$col->foreignKey instanceof \Aurora\ForeignKey)
+                    $constraints[] = $this->$col->foreignKey;
+                if ($this->$col->primaryKey)
+                    $primaryKeys[] = $col;
+                $columns[] = $this->$col;
+            } elseif ($this->$col instanceof \Aurora\Relationship) {
+                continue;
+            } else
                 throw new \Aurora\Error\CreateTableException("{$col} is not a  \Aurora\Column object.");
         }
         
-        return $columns;
+        return array_merge($columns);
     }
     
     final public function hasColumn($column)
@@ -120,9 +120,16 @@ abstract class Table
         if ($this->notInserted && !$forceUpdate) {
             $sql = 'INSERT INTO ' . $this->name;
             
+            $pk = null;
+            
             $columnsToInsert = array_filter(
                 $this->getColumns(),
-                function($col) {
+                function($col) use (&$pk) {
+                    if (is_null($col->value) && 
+                        $col->primaryKey && 
+                        $col->autoIncrement) {
+                        $pk = $col;
+                    }
                     return !is_null($col->value) && 
                         !($col->primaryKey && $col->autoIncrement);
                 }
@@ -146,7 +153,12 @@ abstract class Table
             
             $sql .= " ({$keys}) VALUES ({$values})";
 
-            return \Aurora\Dbal::query($sql, $args, false);
+            $id = null;
+            $result = \Aurora\Dbal::query($sql, $args, false, $id);
+            $this->notInserted = false;
+            $pk->value = $pk->type->parseValue($id);
+            
+            return $result;
         } else {
             $sql = 'UPDATE ' . $this->name . ' SET ';
             $primaryKeys = array();
@@ -217,13 +229,28 @@ abstract class Table
         $sql = $this->__toString();
         return \Aurora\Dbal::query($sql, null, false);
     }
+
+    final private function getPrimaryKeyClause($primaryKeys)
+    {
+        if (count($primaryKeys) < 1)
+            throw new \RuntimeException("{$this->name} table does not have a primary key.");
+
+        $fields = join(', ', $primaryKeys);
+        return "PRIMARY KEY ({$fields})";
+    }
     
     final public function __toString()
     {
+        $constraints = array();
+        $primaryKeys = array();
+        $columns = $this->getColumns($constraints, $primaryKeys);
+        $pk = $this->getPrimaryKeyClause($primaryKeys);
+        $fields = array_merge($columns, array($pk), $constraints);
+        
         $strValue = "CREATE TABLE {$this->name} (";
         $strValue .= join(',', array_map(function($item) {
             return (string) $item;
-        }, $this->getColumns()));
+        }, $fields));
         $strValue .= ')';
         
         return $strValue;
