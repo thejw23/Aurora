@@ -31,7 +31,7 @@ class SimpleTableTest extends PHPUnit_Framework_TestCase
 {
     public function testCreateSimpleTable()
     {
-        $user = User::instance();    
+        $user = new User();    
         $sql = "CREATE TABLE users (user_id INTEGER NOT NULL AUTO_INCREMENT,user_name VARCHAR(80) NOT NULL UNIQUE DEFAULT '',user_mail VARCHAR(80) NOT NULL,user_password VARCHAR(80) NOT NULL,PRIMARY KEY (user_id))";
         $this->assertEquals($sql, (string) $user);
         $this->assertEquals(true, $user->createTable());
@@ -39,7 +39,7 @@ class SimpleTableTest extends PHPUnit_Framework_TestCase
     
     public function testInsertRow()
     {
-        $user = User::instance();
+        $user = new User();
         $user->user_name = "Bob Doe";
         $user->user_mail = 'bobdoe@bobmail.com';
         $user->user_password = 'supersecret';
@@ -76,7 +76,7 @@ class SimpleTableTest extends PHPUnit_Framework_TestCase
     
     public function testUpdateRow()
     {
-        $user = User::instance();
+        $user = new User();
         $user->user_id = 1;
         $user->user_name = "Bob Dylan";
         $user->user_mail = 'bobdyaln@bobmail.com';
@@ -86,7 +86,7 @@ class SimpleTableTest extends PHPUnit_Framework_TestCase
     
     public function testOrderBy()
     {
-        $user = User::instance();
+        $user = new User();
         $user->user_name = "Michael";
         $user->user_mail = 'michael@bobmail.com';
         $user->user_password = 'supersupersecret';
@@ -140,7 +140,7 @@ class SimpleTableTest extends PHPUnit_Framework_TestCase
     
     public function testDeleteRow()
     {
-        $user = User::instance();
+        $user = new User();
         $user->user_id = 1;
         $user->user_name = "Bob Dylan";
         $user->user_mail = 'bobdyaln@bobmail.com';
@@ -150,7 +150,7 @@ class SimpleTableTest extends PHPUnit_Framework_TestCase
     
     public function testDropTable()
     {
-        $user = User::instance();
+        $user = new User();
         $this->assertEquals(true, $user->dropTable());
     }
 }

@@ -66,12 +66,12 @@ class OneToManyTest extends PHPUnit_Framework_TestCase
 {
     public function testCreateTables()
     {
-        $user = OTM_User::instance();    
+        $user = new OTM_User();    
         $sql = "CREATE TABLE users (user_id INTEGER NOT NULL AUTO_INCREMENT,user_name VARCHAR(80) NOT NULL UNIQUE DEFAULT '',user_mail VARCHAR(80) NOT NULL,user_password VARCHAR(80) NOT NULL,PRIMARY KEY (user_id))";
         $this->assertEquals($sql, (string) $user);
         $this->assertEquals(true, $user->createTable());
         
-        $post = Post::instance();
+        $post = new Post();
         $sql = "CREATE TABLE posts (post_id INTEGER NOT NULL AUTO_INCREMENT,user_id INTEGER NOT NULL,title VARCHAR(255) NOT NULL DEFAULT '',PRIMARY KEY (post_id),FOREIGN KEY (user_id) REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE)";
         $this->assertEquals($sql, (string) $post);
         $this->assertEquals(true, $post->createTable());
@@ -79,15 +79,15 @@ class OneToManyTest extends PHPUnit_Framework_TestCase
     
     public function testInsertRow()
     {
-        $user = OTM_User::instance();
+        $user = new OTM_User();
         $user->user_name = "Bob Doe";
         $user->user_mail = 'bobdoe@bobmail.com';
         $user->user_password = 'supersecret';
         $this->assertEquals(true, $user->save());
         
-        $post1 = Post::instance();
-        $post2 = Post::instance();
-        $post3 = Post::instance();
+        $post1 = new Post();
+        $post2 = new Post();
+        $post3 = new Post();
         
         $post1->user_id = $user->user_id;
         $post1->title = 'Post 1';
@@ -113,8 +113,8 @@ class OneToManyTest extends PHPUnit_Framework_TestCase
     
     public function testDropTable()
     {
-        $user = OTM_User::instance();
-        $post = Post::instance();
+        $user = new OTM_User();
+        $post = new Post();
         
         try {
             $this->assertEquals(true, $user->dropTable());

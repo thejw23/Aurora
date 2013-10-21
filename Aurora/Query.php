@@ -117,7 +117,7 @@ class Query
         $rows = \Aurora\Dbal::query($sql, $params);
         $results = array();
         while ($row = $rows->fetch(\PDO::FETCH_ASSOC)) {
-            $result = $model::instance();
+            $result = new $model();
             foreach ($row as $key => $val) {
                 $result->$key = $result->parseValue($key, $val);
                 $result->setInserted();
