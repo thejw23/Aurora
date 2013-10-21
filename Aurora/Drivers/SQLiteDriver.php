@@ -17,7 +17,7 @@ class SQLiteDriver extends \Aurora\Drivers\BaseDriver
     
     public function getConnection()
     {
-        return new PDO(
+        return new \PDO(
             'sqlite:' . $this->file,
             $this->user,
             $this->password
