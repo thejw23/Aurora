@@ -6,8 +6,6 @@ use \Aurora\Types\Int;
 use \Aurora\Types\String;
 use \Aurora\Query;
 
-require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config.php';
-
 class User extends Table
 {
     protected $user_id;
@@ -28,9 +26,6 @@ class User extends Table
         $this->user_password = new Column(new String(80));
     }
 }
-
-$driver = new \Aurora\Drivers\MySQLDriver($config['host'], $config['db'], $config['port'], $config['user'], $config['password']);
-\Aurora\Dbal::init($driver);
 
 class SimpleTableTest extends PHPUnit_Framework_TestCase
 {

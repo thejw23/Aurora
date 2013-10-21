@@ -21,12 +21,16 @@ class Dbal
 				\PDO::ERRMODE_EXCEPTION
 			);
 		} catch (\PDOException $e) {
-			throw new \Aurora\Error\DatabaseException('Unable to establish database connection.');
+			throw new \Aurora\Error\DatabaseException('Unable to establish database connection.' . $e->getMessage());
 		}
 	}
 	
-	public static function query($sentence, $params, $return = true)
-	{
+	public static function query(
+        $sentence,
+        $params,
+        $return = true,
+        &$insertedId = null
+    ) {
 		if (is_null(self::$conn))
 			self::connect();
 		
@@ -41,6 +45,7 @@ class Dbal
 				$stmt->execute($params);
 			if ($result) {
 				if (!$return) {
+                    $insertedId = self::$conn->lastInsertId();
 					self::$conn->commit();
 					$stmt = null;
 				}

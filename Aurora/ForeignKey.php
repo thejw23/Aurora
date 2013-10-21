@@ -38,7 +38,7 @@ class ForeignKey
     public final function __toString()
     {
         return "FOREIGN KEY ({$this->selfField}) REFERENCES {$this->tableName}" . 
-                "({$this->fieldName}} ON UPDATE {$this->onUpdate} ON UPDATE " . 
-                "{$this->onDelete})";
+                "({$this->fieldName}) ON UPDATE {$this->onUpdate} ON DELETE " . 
+                "{$this->onDelete}";
     }
 }

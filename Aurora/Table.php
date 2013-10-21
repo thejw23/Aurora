@@ -86,17 +86,18 @@ abstract class Table
         );
         
         $columns = array();
+        
         foreach ($columnNames as $col) {
-            $columns[] = $this->$col;
             if ($this->$col instanceof \Aurora\Column) {
                 $this->$col->name = $col;
                 if ($this->$col->foreignKey instanceof \Aurora\ForeignKey)
                     $constraints[] = $this->$col->foreignKey;
                 if ($this->$col->primaryKey)
                     $primaryKeys[] = $col;
-            } elseif ($this->$col instanceof \Aurora\Relationship)
+                $columns[] = $this->$col;
+            } elseif ($this->$col instanceof \Aurora\Relationship) {
                 continue;
-            else
+            } else
                 throw new \Aurora\Error\CreateTableException("{$col} is not a  \Aurora\Column object.");
         }
         
@@ -119,9 +120,16 @@ abstract class Table
         if ($this->notInserted && !$forceUpdate) {
             $sql = 'INSERT INTO ' . $this->name;
             
+            $pk = null;
+            
             $columnsToInsert = array_filter(
                 $this->getColumns(),
-                function($col) {
+                function($col) use (&$pk) {
+                    if (is_null($col->value) && 
+                        $col->primaryKey && 
+                        $col->autoIncrement) {
+                        $pk = $col;
+                    }
                     return !is_null($col->value) && 
                         !($col->primaryKey && $col->autoIncrement);
                 }
@@ -145,7 +153,12 @@ abstract class Table
             
             $sql .= " ({$keys}) VALUES ({$values})";
 
-            return \Aurora\Dbal::query($sql, $args, false);
+            $id = null;
+            $result = \Aurora\Dbal::query($sql, $args, false, $id);
+            $this->notInserted = false;
+            $pk->value = $pk->type->parseValue($id);
+            
+            return $result;
         } else {
             $sql = 'UPDATE ' . $this->name . ' SET ';
             $primaryKeys = array();
@@ -232,10 +245,12 @@ abstract class Table
         $primaryKeys = array();
         $columns = $this->getColumns($constraints, $primaryKeys);
         $pk = $this->getPrimaryKeyClause($primaryKeys);
+        $fields = array_merge($columns, array($pk), $constraints);
+        
         $strValue = "CREATE TABLE {$this->name} (";
         $strValue .= join(',', array_map(function($item) {
             return (string) $item;
-        }, array_merge($columns, array($pk), $constraints)));
+        }, $fields));
         $strValue .= ')';
         
         return $strValue;

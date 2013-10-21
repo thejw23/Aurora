@@ -30,13 +30,21 @@ class Relationship
         else
             throw new \RuntimeException("{$property} property does not exist.");
     }
+    
+    public final function getForeignKey()
+    {
+        return $this->foreignKey;
+    }
 
     public final function retrieve($fkValue)
     {
+        $model = $this->model;
         $query = $model::query()->filterBy(array($this->modelField, $fkValue));
-        if ($this->single)
+        if ($this->single) {
             $this->value = $query->first();
-        else
+            if ($this->value === false)
+                $this->value = $model::instance();
+        } else
             $this->value = $query->all();
     }
 }
