@@ -3,5 +3,13 @@ language: php
 php:
   - 5.3
   - 5.4
+  - 5.5
+  
+services:
+  - mysql
+  - sqlite3
+  
+before_script:
+  - mysql -e 'create database aurora_tests;'
 
 script: phpunit --coverage-text
