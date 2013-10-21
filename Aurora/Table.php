@@ -62,11 +62,10 @@ abstract class Table
             !in_array($property, self::$baseProperties)) {
             if ($this->$property instanceof \Aurora\Column)
                 $this->$property->value = $value;
-            }
         }
     }
     
-    public function parseValue($property, $value)
+    final public function parseValue($property, $value)
     {
         if ($this->__isset($property)) {
             return $this->$property->type->parseValue($value);
@@ -93,11 +92,11 @@ abstract class Table
                 $this->$col->name = $col;
                 if ($this->$col->foreignKey instanceof \Aurora\ForeignKey)
                     $constraints[] = $this->$col->foreignKey;
-                if ($col->primaryKey)
-                        $primaryKeys[] = $col;
+                if ($this->$col->primaryKey)
+                    $primaryKeys[] = $col;
             } elseif ($this->$col instanceof \Aurora\Relationship)
                 continue;
-            } else
+            else
                 throw new \Aurora\Error\CreateTableException("{$col} is not a  \Aurora\Column object.");
         }
         

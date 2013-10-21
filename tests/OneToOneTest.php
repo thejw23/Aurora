@@ -1,6 +1,6 @@
 <?php
 
-use \Aurora\Table;
+/*use \Aurora\Table;
 use \Aurora\Column;
 use \Aurora\Types\Int;
 use \Aurora\Types\String;
@@ -29,7 +29,7 @@ class User extends Table
         $this->user_password = new Column(new String(80));
         
         // One to many
-        $this->users = new Relationship('Post', 'user_id', 'user_id'));
+        $this->users = new Relationship('Post', 'user_id', 'user_id');
         // Many to many
     }
 }
@@ -188,4 +188,4 @@ class SimpleTableTest extends PHPUnit_Framework_TestCase
         $user = User::instance();
         $this->assertEquals(true, $user->dropTable());
     }
-}
+}*/

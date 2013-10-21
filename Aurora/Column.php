@@ -30,11 +30,12 @@ class Column
             $this->__set('default', $default);
             $this->__set('primaryKey', $primaryKey);
             $this->__set('autoIncrement', $autoIncrement);
-            $this->__set('foreignKey', $foreignKey);
+            if (!is_null($foreignKey))
+                $this->__set('foreignKey', $foreignKey);
             if (!is_null($default))
                 $this->value = $default;
         } catch (\Exception $e) {
-            throw new \Aurora\Error\CreateTableException('Invalid parameters supplied for column creation.');
+            throw new \Aurora\Error\CreateTableException('Invalid parameters supplied for column creation.' . $e->getMessage());
         }
     }
     

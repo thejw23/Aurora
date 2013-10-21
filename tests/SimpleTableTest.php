@@ -37,7 +37,7 @@ class SimpleTableTest extends PHPUnit_Framework_TestCase
     public function testCreateSimpleTable()
     {
         $user = User::instance();    
-        $sql = "CREATE TABLE users (user_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,user_name VARCHAR(80) NOT NULL UNIQUE DEFAULT '',user_mail VARCHAR(80) NOT NULL,user_password VARCHAR(80) NOT NULL)";
+        $sql = "CREATE TABLE users (user_id INTEGER NOT NULL AUTO_INCREMENT,user_name VARCHAR(80) NOT NULL UNIQUE DEFAULT '',user_mail VARCHAR(80) NOT NULL,user_password VARCHAR(80) NOT NULL,PRIMARY KEY (user_id))";
         $this->assertEquals($sql, (string) $user);
         $this->assertEquals(true, $user->createTable());
     }
