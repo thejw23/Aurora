@@ -27,14 +27,24 @@ if ($db == 'sqlite') {
 } else {
     switch ($db) {
         case 'mysql':
-            $driverName = 'MySQLDriver';
+            $driver = new \Aurora\Drivers\MySQLDriver(
+                $config['host'],
+                $config['db'],
+                $config['port'],
+                $config['user'],
+                $config['password']
+            );
         break;
         
         case 'postgresql':
-            $driverName = 'PostgreSQLDriver';
+            $driver = new \Aurora\Drivers\PostgreSQLDriver(
+                $config['host'],
+                $config['db'],
+                $config['port'],
+                $config['user'],
+                $config['password']
+            );
         break;
     }
-    
-    $driver = new \Aurora\Drivers\$driverName($config['host'], $config['db'], $config['port'], $config['user'], $config['password']);
     \Aurora\Dbal::init($driver);
 }
