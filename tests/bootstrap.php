@@ -18,15 +18,23 @@ spl_autoload_register('customAutoLoader');
 
 $db = getenv('DB');
 
-if (file_exists(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config.php'))
-    require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config.php';
-else
-    require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'mysql_config.php';
+if ($db != 'sqlite')
+    require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . $db . '_.php';
 
-if ($db == 'mysql') {
-    $driver = new \Aurora\Drivers\MySQLDriver($config['host'], $config['db'], $config['port'], $config['user'], $config['password']);
+if ($db == 'sqlite') {
+    $driver = new \Aurora\Drivers\SQLiteDriver('', '');
     \Aurora\Dbal::init($driver);
 } else {
-    $driver = new \Aurora\Drivers\SQLiteDriver('', '');
+    switch ($db) {
+        case 'mysql':
+            $driverName = 'MySQLDriver';
+        break;
+        
+        case 'postgresql':
+            $driverName = 'PostgreSQLDriver';
+        break;
+    }
+    
+    $driver = new \Aurora\Drivers\$driverName($config['host'], $config['db'], $config['port'], $config['user'], $config['password']);
     \Aurora\Dbal::init($driver);
 }

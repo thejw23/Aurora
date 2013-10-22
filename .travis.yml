@@ -8,13 +8,16 @@ php:
 env:
   - DB=mysql
   - DB=sqlite3
+  - DB=postgresql
   
 services:
   - mysql
   - sqlite3
+  - postgresql
   
 before_script:
   - composer install
   - mysql -e 'create database aurora_tests;'
+  - pgsql -c 'create database aurora_tests;' -U postgres
 
 script: phpunit --coverage-text
