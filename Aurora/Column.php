@@ -83,14 +83,14 @@ class Column
     {
         $isPgSQL = (\Aurora\Dbal::getDriver() instanceof \Aurora\Drivers\PostgreSQLDriver);
         
-        $strValue = "{$this->name}";
-        if (!$isPgSQL)
-            $strValue .= " {$this->type->getRepresentation()}";
+        $strValue = "{$this->name}";   
         
         if ($this->primaryKey 
             && $this->autoIncrement 
             && $isPgSQL) {
             $strValue .= ' SERIAL PRIMARY KEY';
+        } else {
+            $strValue .= " {$this->type->getRepresentation()}";
         }
         
         if (!$this->nullable)
