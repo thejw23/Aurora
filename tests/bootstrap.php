@@ -18,8 +18,8 @@ spl_autoload_register('customAutoLoader');
 
 $db = getenv('DB');
 
-if ($db != 'sqlite')
-    require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . $db . '_.php';
+if ($db != 'sqlite3')
+    require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . $db . '_config.php';
 
 if ($db == 'sqlite') {
     $driver = new \Aurora\Drivers\SQLiteDriver('', '');
