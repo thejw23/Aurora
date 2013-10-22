@@ -4,12 +4,17 @@ php:
   - 5.3
   - 5.4
   - 5.5
+
+env:
+  - DB=mysql
+  - DB=sqlite3
   
 services:
   - mysql
   - sqlite3
   
 before_script:
+  - composer install
   - mysql -e 'create database aurora_tests;'
 
 script: phpunit --coverage-text

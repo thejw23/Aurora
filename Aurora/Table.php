@@ -148,7 +148,8 @@ abstract class Table
             $id = null;
             $result = \Aurora\Dbal::query($sql, $args, false, $id);
             $this->notInserted = false;
-            if ($id !== '0')
+
+            if ($id !== '0' && !is_null($pk))
                 $pk->value = $pk->type->parseValue($id);
             
             return $result;
@@ -229,7 +230,10 @@ abstract class Table
             throw new \RuntimeException("{$this->name} table does not have a primary key.");
 
         $fields = join(', ', $primaryKeys);
-        return "PRIMARY KEY ({$fields})";
+        if (count($primaryKeys) == 1 
+            &&\Aurora\Dbal::getDriver() instanceof \Aurora\Drivers\SQLiteDriver)
+            return array();
+        return array("PRIMARY KEY ({$fields})");
     }
     
     final public function __toString()
@@ -238,7 +242,7 @@ abstract class Table
         $primaryKeys = array();
         $columns = $this->getColumns($constraints, $primaryKeys);
         $pk = $this->getPrimaryKeyClause($primaryKeys);
-        $fields = array_merge($columns, array($pk), $constraints);
+        $fields = array_merge($columns, $pk, $constraints);
         
         $strValue = "CREATE TABLE {$this->name} (";
         $strValue .= join(',', array_map(function($item) {

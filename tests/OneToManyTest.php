@@ -67,13 +67,9 @@ class OneToManyTest extends PHPUnit_Framework_TestCase
     public function testCreateTables()
     {
         $user = new OTM_User();    
-        $sql = "CREATE TABLE users (user_id INTEGER NOT NULL AUTO_INCREMENT,user_name VARCHAR(80) NOT NULL UNIQUE DEFAULT '',user_mail VARCHAR(80) NOT NULL,user_password VARCHAR(80) NOT NULL,PRIMARY KEY (user_id))";
-        $this->assertEquals($sql, (string) $user);
         $this->assertEquals(true, $user->createTable());
         
         $post = new Post();
-        $sql = "CREATE TABLE posts (post_id INTEGER NOT NULL AUTO_INCREMENT,user_id INTEGER NOT NULL,title VARCHAR(255) NOT NULL DEFAULT '',PRIMARY KEY (post_id),FOREIGN KEY (user_id) REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE)";
-        $this->assertEquals($sql, (string) $post);
         $this->assertEquals(true, $post->createTable());
     }
     
@@ -116,14 +112,19 @@ class OneToManyTest extends PHPUnit_Framework_TestCase
         $user = new OTM_User();
         $post = new Post();
         
+        $exceptionThrown = false;
+        
         try {
             $this->assertEquals(true, $user->dropTable());
             $this->assertEquals(true, $post->dropTable());
         } catch (\Aurora\Error\DatabaseException $e) {
+            $exceptionThrown = true;
             $this->assertEquals(true, true);
         }
         
-        $this->assertEquals(true, $post->dropTable());
-        $this->assertEquals(true, $user->dropTable());
+        if ($exceptionThrown) {
+            $this->assertEquals(true, $post->dropTable());
+            $this->assertEquals(true, $user->dropTable());
+        }
     }
 }

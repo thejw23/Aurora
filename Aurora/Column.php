@@ -84,12 +84,21 @@ class Column
         $strValue = "{$this->name} {$this->type->getRepresentation()}";
         if (!$this->nullable)
             $strValue .= ' NOT NULL';
+        
         if ($this->unique)
             $strValue .= ' UNIQUE';
+        
         if (!is_null($this->default))
             $strValue .= " DEFAULT '{$this->default}'";
+        
+        if ($this->primaryKey 
+            && $this->autoIncrement 
+            && \Aurora\Dbal::getDriver() instanceof \Aurora\Drivers\SQLiteDriver) {
+            $strValue .= ' PRIMARY KEY';
+        }
+
         if ($this->autoIncrement)
-            $strValue .= ' AUTO_INCREMENT';
+            $strValue .= (!(\Aurora\Dbal::getDriver() instanceof \Aurora\Drivers\SQLiteDriver)) ? ' AUTO_INCREMENT' : ' AUTOINCREMENT';
             
         return $strValue;
     }
