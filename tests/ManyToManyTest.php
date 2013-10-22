@@ -83,8 +83,7 @@ class Booking extends Table
             'CASCADE',
             'CASCADE'
         );
-        $this->booked = new Column(new String(20));
-        $this->booked->default = '';
+        $this->booked = new Column(new \Aurora\Types\DateTime);
         
         $this->book = new Relationship('Book', 'book_id', 'book_id');
         $this->user = new Relationship('MTM_User', 'user_id', 'user_id');
@@ -130,21 +129,25 @@ class ManyToManyTest extends PHPUnit_Framework_TestCase
         $booking1 = new Booking();
         $booking1->user_id = $user1->user_id;
         $booking1->book_id = $book1->book_id;
+        $booking1->booked = new \DateTime("2010-07-05 08:00:00+0200");
         $this->assertEquals(true, $booking1->save());
         
         $booking2 = new Booking();
         $booking2->user_id = $user1->user_id;
         $booking2->book_id = $book2->book_id;
+        $booking2->booked = new \DateTime("2010-07-06 08:00:00+0200");
         $this->assertEquals(true, $booking2->save());
         
         $booking3 = new Booking();
         $booking3->user_id = $user2->user_id;
         $booking3->book_id = $book1->book_id;
+        $booking3->booked = new \DateTime("2010-07-07 08:00:00+0200");
         $this->assertEquals(true, $booking3->save());
         
         $booking4 = new Booking();
         $booking4->user_id = $user2->user_id;
         $booking4->book_id = $book2->book_id;
+        $booking4->booked = new \DateTime("2010-07-08 08:00:00+0200");
         $this->assertEquals(true, $booking4->save());
     }
     
@@ -161,6 +164,29 @@ class ManyToManyTest extends PHPUnit_Framework_TestCase
             ->first();
         $this->assertEquals(2, count($book->bookings));
         $this->assertEquals('Mike', $book->bookings[1]->user->user_name);
+    }
+    
+    public function testDateTime()
+    {
+        $dt = new \Aurora\Types\DateTime();
+        $bookings = Booking::query()
+                    ->filterBy(array(
+                        'booked',
+                        '>',
+                        $dt->parseValue(new \DateTime("2010-07-05 16:00:00+0200"))
+                    ))
+                    ->all();
+        $this->assertEquals(3, count($bookings));
+        
+        $dt = new \Aurora\Types\DateTime();
+        $booking = Booking::query()
+                    ->filterBy(array(
+                        'booked',
+                        $dt->parseValue(new \DateTime("2010-07-08 08:00:00+0200"))
+                    ))
+                    ->first();
+        $this->assertEquals(2, $booking->book_id);
+        $this->assertEquals(2, $booking->user_id);
     }
     
     public function testDropTable()
