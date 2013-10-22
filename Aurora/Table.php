@@ -240,7 +240,8 @@ abstract class Table
 
         $fields = join(', ', $primaryKeys);
         if (count($primaryKeys) == 1 
-            &&\Aurora\Dbal::getDriver() instanceof \Aurora\Drivers\SQLiteDriver)
+            && (\Aurora\Dbal::getDriver() instanceof \Aurora\Drivers\SQLiteDriver
+            || \Aurora\Dbal::getDriver() instanceof \Aurora\Drivers\PostgreSQLDriver))
             return array();
         return array("PRIMARY KEY ({$fields})");
     }

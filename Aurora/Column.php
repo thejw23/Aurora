@@ -81,7 +81,18 @@ class Column
     
     public function __toString()
     {
-        $strValue = "{$this->name} {$this->type->getRepresentation()}";
+        $isPgSQL = (\Aurora\Dbal::getDriver() instanceof \Aurora\Drivers\PostgreSQLDriver);
+        
+        $strValue = "{$this->name}";
+        if (!$isPgSQL)
+            $strValue .= " {$this->type->getRepresentation()}";
+        
+        if ($this->primaryKey 
+            && $this->autoIncrement 
+            && $isPgSQL) {
+            $strValue .= ' SERIAL PRIMARY KEY';
+        }
+        
         if (!$this->nullable)
             $strValue .= ' NOT NULL';
         
@@ -97,7 +108,7 @@ class Column
             $strValue .= ' PRIMARY KEY';
         }
 
-        if ($this->autoIncrement)
+        if ($this->autoIncrement && !$isPgSQL)
             $strValue .= (!(\Aurora\Dbal::getDriver() instanceof \Aurora\Drivers\SQLiteDriver)) ? ' AUTO_INCREMENT' : ' AUTOINCREMENT';
             
         return $strValue;
