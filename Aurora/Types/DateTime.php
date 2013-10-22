@@ -36,24 +36,34 @@ class DateTime extends \Aurora\Type
         return 'INTEGER';
     }
     
-    public function parseValue($value)
+    public function retrieveValue($value)
     {
         if (is_string($value)) {
             try {
-                $value = new \DateTime($value);
+                return new \DateTime($value);
             } catch (\Exception $e) {
                 // Epoch (retrieved from SQLite)
                 try {
-                    $value = new \DateTime("@$value");
+                    return new \DateTime("@$value");
                 } catch (\Exception $e) {
                     return false;
                 }
             }
+        } else {
+            return $value;
         }
+    }
+    
+    public function parseValue($value)
+    {
+        $value = $this->retrieveValue($value);
+        
+        if (!$value)
+            throw new \RuntimeException("The given value is not a valid \Aurora\Types\DateTime value.");
         
         $driver = $this->getDriver();
         if (!($driver instanceof \Aurora\Drivers\SQLiteDriver)) {
-            return $value->format("Y-m-d H:i:s");
+            return (string) $value->format("Y-m-d H:i:s");
         }
         return (int) $value->format('U');
     }

@@ -60,7 +60,10 @@ abstract class Table
     final public function parseValue($property, $value)
     {
         if ($this->__isset($property)) {
-            return $this->$property->type->parseValue($value);
+            if ($this->$property->type instanceof \Aurora\Types\DateTime)
+                return $this->$property->type->retrieveValue($value);
+            else
+                return $this->$property->type->parseValue($value);
         } else 
             throw new \RuntimeException("{$property} property does not exist.");
     }
@@ -130,7 +133,10 @@ abstract class Table
             $args = array();
             $keys = join(', ', array_map(
                 function($col) use (&$args) {
-                    $args[] = $col->value;
+                    if ($col->type instanceof \Aurora\Types\DateTime)
+                        $args[] = $col->type->parseValue($col->value);
+                    else
+                        $args[] = $col->value;
                     return $col->name;
                 },
                 $columnsToInsert
@@ -171,7 +177,10 @@ abstract class Table
             $args = array();
             $fields = join(', ', array_map(
                 function($col) use (&$args) {
-                    $args[] = $col->value;
+                    if ($col->type instanceof \Aurora\Types\DateTime)
+                        $args[] = $col->type->parseValue($col->value);
+                    else
+                        $args[] = $col->value;
                     return "{$col->name} = ?";
                 },
                 $columnsToInsert
