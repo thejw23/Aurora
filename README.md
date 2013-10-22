@@ -11,7 +11,6 @@ Aurora is currently under active development.
 
 Roadmap
 -------
-* DateTime, Time and Date column types.
 * Documentation.
 * PostgreSQL driver.
 * PostgreSQL tests.
