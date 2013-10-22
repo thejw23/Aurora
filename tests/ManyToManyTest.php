@@ -169,16 +169,21 @@ class ManyToManyTest extends PHPUnit_Framework_TestCase
         $book = new Book();
         $booking = new Booking();
         
+        $exceptionThrown = false;
+        
         try {
             $this->assertEquals(true, $user->dropTable());
             $this->assertEquals(true, $book->dropTable());
             $this->assertEquals(true, $booking->dropTable());
         } catch (\Aurora\Error\DatabaseException $e) {
+            $exceptionThrown = true;
             $this->assertEquals(true, true);
         }
         
-        $this->assertEquals(true, $booking->dropTable());
-        $this->assertEquals(true, $book->dropTable());
-        $this->assertEquals(true, $user->dropTable());
+        if ($exceptionThrown) {
+            $this->assertEquals(true, $booking->dropTable());
+            $this->assertEquals(true, $book->dropTable());
+            $this->assertEquals(true, $user->dropTable());
+        }
     }
 }

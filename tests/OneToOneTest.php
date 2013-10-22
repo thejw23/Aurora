@@ -108,14 +108,19 @@ class OneToOneTest extends PHPUnit_Framework_TestCase
         $user = new OTO_User();
         $profile = new Profile();
         
+        $exceptionThrown = false;
+        
         try {
             $this->assertEquals(true, $user->dropTable());
             $this->assertEquals(true, $profile->dropTable());
         } catch (\Aurora\Error\DatabaseException $e) {
+            $exceptionThrown = true;
             $this->assertEquals(true, true);
         }
         
-        $this->assertEquals(true, $profile->dropTable());
-        $this->assertEquals(true, $user->dropTable());
+        if ($exceptionThrown) {
+            $this->assertEquals(true, $profile->dropTable());
+            $this->assertEquals(true, $user->dropTable());
+        }
     }
 }
