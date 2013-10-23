@@ -31,7 +31,8 @@ class DateTime extends \Aurora\Type
         $driver = $this->getDriver();
         
         if (!($driver instanceof \Aurora\Drivers\SQLiteDriver)) {
-            return "DATETIME";
+            return ($driver instanceof \Aurora\Drivers\MySQLDriver) 
+                ? "DATETIME" : "TIMESTAMP";
         }
         return 'INTEGER';
     }

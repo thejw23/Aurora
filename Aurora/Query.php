@@ -41,10 +41,19 @@ class Query
     
     final public function limit($offset, $num = false)
     {
-        if ($num === false)
-            $this->query['limit'] = (int) $offset;
-        else
-            $this->query['limit'] = $offset . ', ' . $num;
+        if (\Aurora\Dbal::getDriver() 
+            instanceof \Aurora\Drivers\PostgreSQLDriver) {
+            if ($num === false)
+                $this->query['limit'] = (int) $offset;
+            else
+                $this->query['limit'] = ((int) $num) . ' OFFSET ' 
+                    . ((int) $offset);
+        } else {
+            if ($num === false)
+                $this->query['limit'] = (int) $offset;
+            else
+                $this->query['limit'] = $offset . ', ' . $num;
+        }
         
         $results = self::getResults(
             $this->model,
