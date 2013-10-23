@@ -247,10 +247,13 @@ abstract class Table
 
         $fields = join(', ', $primaryKeys);
         if (count($primaryKeys) == 1 
-            && (\Aurora\Dbal::getDriver() instanceof \Aurora\Drivers\SQLiteDriver
-            || \Aurora\Dbal::getDriver() instanceof \Aurora\Drivers\PostgreSQLDriver))
+            && (\Aurora\Dbal::getDriver() instanceof \Aurora\Drivers\SQLiteDriver)
             return array();
-        return array("PRIMARY KEY ({$fields})");
+        elseif (count($primaryKeys) == 1 
+            || \Aurora\Dbal::getDriver() instanceof \Aurora\Drivers\PostgreSQLDriver))
+            return array("CONSTRAINT {$this->name}_{$fields}_pkey PRIMARY KEY ({$fields})");
+        else
+            return array("CONSTRAINT {$this->name} PRIMARY KEY ({$fields})");
     }
     
     final public function __toString()
