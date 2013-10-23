@@ -116,6 +116,7 @@ abstract class Table
             $sql = 'INSERT INTO ' . $this->name;
             
             $pk = null;
+            $name = null;
             
             $columnsToInsert = array_filter(
                 $this->getColumns(),
@@ -150,9 +151,15 @@ abstract class Table
             ));
             
             $sql .= " ({$keys}) VALUES ({$values})";
+            
+            if (\Aurora\Dbal::getDriver() 
+                instanceof \Aurora\Drivers\PostgreSQLDriver
+                && $pk != null) {
+                $name = "{$this->name}_{$pk->name}_pkey";
+            }
 
             $id = null;
-            $result = \Aurora\Dbal::query($sql, $args, false, $id);
+            $result = \Aurora\Dbal::query($sql, $args, false, $id, $name);
             $this->notInserted = false;
 
             if ($id !== '0' && !is_null($pk))

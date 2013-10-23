@@ -29,7 +29,8 @@ class Dbal
         $sentence,
         $params,
         $return = true,
-        &$insertedId = null
+        &$insertedId = null,
+        $name = null
     ) {
 		if (is_null(self::$conn))
 			self::connect();
@@ -45,7 +46,7 @@ class Dbal
 				$stmt->execute($params);
 			if ($result) {
 				if (!$return) {
-                    $insertedId = self::$conn->lastInsertId();
+                    $insertedId = self::$conn->lastInsertId($name);
 					self::$conn->commit();
 					$stmt = null;
 				}
