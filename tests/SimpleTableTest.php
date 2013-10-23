@@ -143,7 +143,7 @@ class SimpleTableTest extends PHPUnit_Framework_TestCase
         $user->user_name = "Bob Dylan";
         $user->user_mail = 'bobdyaln@bobmail.com';
         $user->user_password = 'supersupersecret';
-        $this->assertEquals(true, $user->remove(true));
+        $this->assertEquals(true, $user->remove());
     }
     
     public function testDropTable()
