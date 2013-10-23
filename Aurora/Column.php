@@ -88,7 +88,7 @@ class Column
         if ($this->primaryKey 
             && $this->autoIncrement 
             && $isPgSQL) {
-            $strValue .= ' SERIAL';
+            $strValue .= ' SERIAL PRIMARY KEY';
         } else {
             $strValue .= " {$this->type->getRepresentation()}";
         }

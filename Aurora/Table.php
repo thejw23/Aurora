@@ -155,7 +155,7 @@ abstract class Table
             if (\Aurora\Dbal::getDriver() 
                 instanceof \Aurora\Drivers\PostgreSQLDriver
                 && $pk != null) {
-                $name = "{$this->name}_{$pk->name}_pkey";
+                $name = "{$this->name}_{$pk->name}_seq";
             }
 
             $id = null;
@@ -247,11 +247,9 @@ abstract class Table
 
         $fields = join(', ', $primaryKeys);
         if (count($primaryKeys) == 1 
-            && (\Aurora\Dbal::getDriver() instanceof \Aurora\Drivers\SQLiteDriver))
+            && (\Aurora\Dbal::getDriver() instanceof \Aurora\Drivers\SQLiteDriver
+            || \Aurora\Dbal::getDriver() instanceof \Aurora\Drivers\PostgreSQLDriver))
             return array();
-        elseif (count($primaryKeys) == 1 
-            && \Aurora\Dbal::getDriver() instanceof \Aurora\Drivers\PostgreSQLDriver)
-            return array("CONSTRAINT {$this->name}_{$fields}_pkey PRIMARY KEY ({$fields})");
         else
             return array("PRIMARY KEY ({$fields})");
     }
