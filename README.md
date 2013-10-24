@@ -108,6 +108,5 @@ $users = User::query()
 
 TODO's
 -------
-* Documentation.
 * Revise PSR-0, PSR-1 and PSR-2 compliance.
 * Logs.
