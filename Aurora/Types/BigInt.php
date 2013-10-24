@@ -32,8 +32,21 @@
  */
 namespace Aurora\Types;
 
+/**
+ * Bigint
+ *
+ * Big integer data type.
+ *
+ * @package Aurora
+ * @author José Miguel Molina
+ */
 class BigInt extends \Aurora\Types\Int
 {
+	/**
+     * Get the type representation e.g. INTEGER, VARCHAR, ...
+     *
+     * @return string
+     */
     public function getRepresentation()
     {
         $driver = $this->getDriver();

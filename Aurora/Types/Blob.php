@@ -32,13 +32,32 @@
  */
 namespace Aurora\Types;
 
+/**
+ * Blob
+ *
+ * Blob data type.
+ *
+ * @package Aurora
+ * @author José Miguel Molina
+ */
 class Blob extends \Aurora\Type
 {
+    /**
+     * Check if a value is valid for this type
+     *
+     * @param mixed $value The value
+     * @return bool
+     */
     public function isValidValue($value)
     {
         return true;
     }
     
+    /**
+     * Get the type representation e.g. INTEGER, VARCHAR, ...
+     *
+     * @return string
+     */
     public function getRepresentation()
     {
         $driver = $this->getDriver();
@@ -46,6 +65,12 @@ class Blob extends \Aurora\Type
         return 'BLOB';
     }
     
+    /**
+     * Get the actual driver used by the database abstraction layer
+     *
+     * @return \Aurora\Drivers\BaseDriver The driver.
+     * @throws \Aurora\Error\DatabaseException if the driver is not configured
+     */
     public function parseValue($value)
     {
         return $value;

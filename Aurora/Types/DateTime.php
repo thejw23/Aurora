@@ -32,13 +32,22 @@
  */
 namespace Aurora\Types;
 
+/**
+ * DateTime
+ *
+ * Datetime data type.
+ *
+ * @package Aurora
+ * @author José Miguel Molina
+ */
 class DateTime extends \Aurora\Type
 {
- 
-    public function __construct()
-    {
-    }
-    
+    /**
+     * Check if a value is valid for this type
+     *
+     * @param mixed $value The value
+     * @return bool
+     */
     public function isValidValue($value)
     {
         if ($value instanceof \DateTime)
@@ -56,6 +65,11 @@ class DateTime extends \Aurora\Type
         return false;
     }
     
+    /**
+     * Get the type representation e.g. INTEGER, VARCHAR, ...
+     *
+     * @return string
+     */
     public function getRepresentation()
     {
         $driver = $this->getDriver();
@@ -67,6 +81,12 @@ class DateTime extends \Aurora\Type
         return 'INTEGER';
     }
     
+    /**
+     * Parses a value retrieved from the database
+     *
+     * @param mixed $value The value
+     * @return \DateTime
+     */
     public function retrieveValue($value)
     {
         if (is_string($value)) {
@@ -85,6 +105,13 @@ class DateTime extends \Aurora\Type
         }
     }
     
+    /**
+     * Parse a value before inserting it into the database
+     *
+     * @param mixed $value The value
+     * @return mixed The parsed value
+     * @throws \RuntimeException
+     */
     public function parseValue($value)
     {
         $value = $this->retrieveValue($value);

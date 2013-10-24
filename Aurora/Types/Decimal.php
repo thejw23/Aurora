@@ -32,22 +32,54 @@
  */
 namespace Aurora\Types;
 
+/**
+ * Decimal
+ *
+ * Decimal data type.
+ *
+ * @package Aurora
+ * @author José Miguel Molina
+ */
 class Decimal extends \Aurora\Type
 {
+    /**
+     * @var int Maximum number of digits
+     */
     private $length;
+
+    /**
+     * @var int Number of digits to the right of the decimal point
+     */
     private $decimals;
     
+    /**
+     * Constructor
+     *
+     * @param int $length Maximum number of digits
+     * @param int $decimals Number of digits to the right of the decimal point
+     */
     public function __construct($length, $decimals)
     {
         $this->length = (int) $length;
         $this->decimals = (int) $decimals;
     }
     
+    /**
+     * Check if a value is valid for this type
+     *
+     * @param mixed $value The value
+     * @return bool
+     */
     public function isValidValue($value)
     {
         return is_float($value);
     }
     
+    /**
+     * Get the type representation e.g. INTEGER, VARCHAR, ...
+     *
+     * @return string
+     */
     public function getRepresentation()
     {
         $driver = $this->getDriver();
@@ -58,6 +90,12 @@ class Decimal extends \Aurora\Type
         return 'REAL';
     }
     
+    /**
+     * Parse a value before inserting it into the database
+     *
+     * @param mixed $value The value
+     * @return mixed The parsed value
+     */
     public function parseValue($value)
     {
         return (float) $value;

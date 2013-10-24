@@ -32,20 +32,47 @@
  */
 namespace Aurora\Types;
 
+/**
+ * Int
+ *
+ * Int data type.
+ *
+ * @package Aurora
+ * @author José Miguel Molina
+ */
 class Int extends \Aurora\Type
 {
+	/**
+	 * @var bool If the integer is unsigned or not
+	 */
 	private $unsigned;
 	
+	/**
+	 * Constructor
+	 *
+	 * @param bool $unsigned If the integer is unsigned or not
+	 */
 	public function __construct($unsigned = false)
 	{
 		$this->unsigned = $unsigned;
 	}
 	
+	/**
+     * Check if a value is valid for this type
+     *
+     * @param mixed $value The value
+     * @return bool
+     */
 	public function isValidValue($value)
 	{
 		return !(!is_int($value) || ($this->unsigned && $value < 0));
 	}
 	
+	/**
+     * Get the type representation e.g. INTEGER, VARCHAR, ...
+     *
+     * @return string
+     */
 	public function getRepresentation()
 	{
 		$driver = $this->getDriver();
@@ -57,6 +84,12 @@ class Int extends \Aurora\Type
 		return 'INTEGER';
 	}
     
+    /**
+     * Parse a value before inserting it into the database
+     *
+     * @param mixed $value The value
+     * @return mixed The parsed value
+     */
     public function parseValue($value)
     {
         return (int) $value;

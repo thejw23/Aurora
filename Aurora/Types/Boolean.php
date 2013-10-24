@@ -32,8 +32,21 @@
  */
 namespace Aurora\Types;
 
+/**
+ * Boolean
+ *
+ * Boolean data type.
+ *
+ * @package Aurora
+ * @author José Miguel Molina
+ */
 class Boolean extends \Aurora\Types\Int
 {
+	/**
+     * Get the type representation e.g. INTEGER, VARCHAR, ...
+     *
+     * @return string
+     */
 	public function getRepresentation()
 	{
 		$driver = $this->getDriver();
@@ -44,6 +57,12 @@ class Boolean extends \Aurora\Types\Int
 		return 'INTEGER';
 	}
     
+    /**
+     * Parse a value before inserting it into the database
+     *
+     * @param mixed $value The value
+     * @return mixed The parsed value
+     */
     public function parseValue($value)
     {
         return (int) $value;
