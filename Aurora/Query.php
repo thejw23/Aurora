@@ -32,21 +32,56 @@
  */
 namespace Aurora;
 
+/**
+ * Query
+ *
+ * This class is used to perform queries on the database.
+ * The queries in Aurora have two parts. You can call any method you want
+ * whenever you want but the query will not be performed untill you call
+ * a limit operation method (all, limit, first or get). Those methods are
+ * the end of query. The rest of the methods will just append fields to
+ * the query.
+ *
+ * @package Aurora
+ * @author José Miguel Molina
+ */
 class Query
 {
+    /** 
+     * @var array The query parts
+     */
     private $query = array(
         'fields'            => '*',
         'table'             => '',
     );
+
+    /**
+     * @var string The model to use
+     */
     private $model;
+
+    /**
+     * @var array The parameters of the query
+     */
     private $params = array();
     
+    /**
+     * Constructor
+     *
+     * @param string The table to query
+     * @param string The model to use
+     */
     final public function __construct($table, $model)
     {
         $this->query['table'] = $table;
         $this->model = $model;
     }
     
+    /**
+     * Returns all the records for that query
+     *
+     * @return array
+     */
     final public function all()
     {
         if (isset($this->query['limit']))
@@ -59,16 +94,31 @@ class Query
         );
     }
     
+    /**
+     * Returns the first record for that query
+     *
+     * @return \Aurora\Table
+     */
     final public function first()
     {
         return $this->limit(0, 1);
     }
     
+    /**
+     * Returns the record at the specified position for that query
+     *
+     * @return \Aurora\Table
+     */
     final public function get($number)
     {
         return $this->limit($number, 1);
     }
     
+    /**
+     * Returns the number of records with the specified offset for that query
+     *
+     * @return \Aurora\Table
+     */
     final public function limit($offset, $num = false)
     {
         if (\Aurora\Dbal::getDriver() 
@@ -101,6 +151,12 @@ class Query
         }
     }
     
+    /**
+     * Adds a where clause to filter based on the array parameter
+     *
+     * @param array $args The filter arguments
+     * @return \Aurora\Query
+     */
     public final function filterBy(array $args)
     {
         $params = array();
@@ -111,6 +167,13 @@ class Query
         return $this;
     }
     
+    /**
+     * Adds a manual where clause
+     *
+     * @param string $clause The where clause
+     * @param array $params The parameters
+     * @return \Aurora\Query
+     */
     public final function where($clause, array $params = array())
     {
         $this->query['where'] = $clause;
@@ -119,6 +182,13 @@ class Query
         return $this;
     }
     
+    /**
+     * Adds an order by clause
+     *
+     * @param array|string $field The fields to order by
+     * @param string $order The order ASC or DESC
+     * @return \Aurora\Query
+     */
     public final function orderBy($field, $order = 'ASC')
     {
         if ($order != 'ASC' && $order != 'DESC')
@@ -131,6 +201,11 @@ class Query
         return $this;
     }
     
+    /**
+     * Returns the SQL sentence for the query
+     *
+     * @return string
+     */
     private final static function buildQuery($query)
     {
         $sql = "SELECT {$query['fields']} FROM " . 
@@ -148,6 +223,13 @@ class Query
         return $sql;
     }
     
+    /**
+     * Performs the query and returns its results
+     *
+     * @param string $model The model
+     * @param string $sql The sql sentence
+     * @param array $params The parameters
+     */
     private final static function getResults($model, $sql, $params = null)
     {
         if (count($params) == 0)
