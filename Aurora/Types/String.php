@@ -78,7 +78,7 @@ class String extends \Aurora\Type
         $driver = $this->getDriver();
         
         if (!($driver instanceof \Aurora\Drivers\SQLiteDriver)) {
-            return 'VARCHAR(' . $this->size ')';
+            return 'VARCHAR(' . $this->size . ')';
         }
         return 'TEXT';
     }
