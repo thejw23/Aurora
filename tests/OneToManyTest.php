@@ -148,7 +148,7 @@ class OneToManyTest extends PHPUnit_Framework_TestCase
         try {
             $this->assertEquals(true, $user->dropTable());
             $this->assertEquals(true, $post->dropTable());
-        } catch (\Aurora\Error\DatabaseException $e) {
+        } catch (\RuntimeException $e) {
             $exceptionThrown = true;
             $this->assertEquals(true, true);
         }

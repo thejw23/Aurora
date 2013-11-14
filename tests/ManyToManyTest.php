@@ -232,7 +232,7 @@ class ManyToManyTest extends PHPUnit_Framework_TestCase
             $this->assertEquals(true, $user->dropTable());
             $this->assertEquals(true, $book->dropTable());
             $this->assertEquals(true, $booking->dropTable());
-        } catch (\Aurora\Error\DatabaseException $e) {
+        } catch (\RuntimeException $e) {
             $exceptionThrown = true;
             $this->assertEquals(true, true);
         }
