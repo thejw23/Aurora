@@ -6,7 +6,7 @@
  * @copyright   2013 José Miguel Molina
  * @link        https://github.com/mvader/Aurora
  * @license     https://raw.github.com/mvader/Aurora/master/LICENSE
- * @version     1.0.0
+ * @version     1.0.1
  * @package     Aurora
  *
  * MIT LICENSE
@@ -43,115 +43,119 @@ namespace Aurora;
  */
 class Dbal
 {
-	/**
-	 * @var \Aurora\Drivers\BaseDriver The driver used for connection
-	 */
-	private static $driver = null;
+    /**
+     * @var \Aurora\Drivers\BaseDriver The driver used for connection
+     */
+    private static $driver = null;
 
-	/**
-	 * @var \PDO PDO connection
-	 */
-	private static $conn = null;
+    /**
+     * @var \PDO PDO connection
+     */
+    private static $conn = null;
 
-	/**
-	 * Constructor
-	 *
-	 * Nope, you won't be able to instantiate this class.
-	 */
-	final private function __construct()
-	{
-		// Here be dragons
-	}
-	
-	/**
-	 * Sets the driver used for the connection
-	 *
-	 * @param \Aurora\Drivers\BaseDriver $dbDriver The driver
-	 */
-	final public static function init(\Aurora\Drivers\BaseDriver $dbDriver)
-	{
-		self::$driver = $dbDriver;
-	}
-	
-	/**
-	 * Gets the PDO connection object
-	 *
-	 * @throws \Aurora\Error\DatabaseException If PDO is unable to establish connection
-	 */
-	final private static function connect()
-	{
-		try {
-			self::$conn = self::$driver->getConnection();
-			self::$conn->setAttribute(
-				\PDO::ATTR_ERRMODE,
-				\PDO::ERRMODE_EXCEPTION
-			);
-		} catch (\PDOException $e) {
-			throw new \Aurora\Error\DatabaseException('Unable to establish database connection.' . $e->getMessage());
-		}
-	}
-	
-	/**
-	 * Performs a query on the database
-	 *
-	 * @param string $sentence The SQL query sentece
-	 * @param array $params The parameters passed to the query
-	 * @param bool $return Does the query return anything?
-	 * @param mixed $insertedId Reference to a var where the last inserted id will be stored if applicable
-	 * @param string $name The name of the constraint to get the last inserted id. That is only needed in PostgreSQL
-	 * @return \PDOStatement|null
-	 * @throws \RuntimeException If $params is not array or null
-	 * @throws \Aurora\Error\DatabaseError If there is an error with the query
-	 */
-	final public static function query(
+    /**
+     * Constructor
+     *
+     * Nope, you won't be able to instantiate this class.
+     */
+    final private function __construct()
+    {
+        // Here be dragons
+    }
+    
+    /**
+     * Sets the driver used for the connection
+     *
+     * @param \Aurora\Drivers\BaseDriver $dbDriver The driver
+     */
+    final public static function init(\Aurora\Drivers\BaseDriver $dbDriver)
+    {
+        self::$driver = $dbDriver;
+    }
+    
+    /**
+     * Gets the PDO connection object
+     *
+     * @throws \Aurora\Error\DatabaseException If PDO is unable to establish connection
+     */
+    final private static function connect()
+    {
+        try {
+            self::$conn = self::$driver->getConnection();
+            self::$conn->setAttribute(
+                \PDO::ATTR_ERRMODE,
+                \PDO::ERRMODE_EXCEPTION
+            );
+        } catch (\PDOException $e) {
+            throw new \Aurora\Error\DatabaseException('Unable to establish database connection.' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Performs a query on the database
+     *
+     * @param string $sentence The SQL query sentece
+     * @param array $params The parameters passed to the query
+     * @param bool $return Does the query return anything?
+     * @param mixed $insertedId Reference to a var where the last inserted id will be stored if applicable
+     * @param string $name The name of the constraint to get the last inserted id. That is only needed in PostgreSQL
+     * @return \PDOStatement|null
+     * @throws \RuntimeException If $params is not array or null
+     * @throws \Aurora\Error\DatabaseError If there is an error with the query
+     */
+    final public static function query(
         $sentence,
         $params = null,
         $return = true,
         &$insertedId = null,
         $name = null
     ) {
-    	// Connect only if we're not already connected to the database
-		if (is_null(self::$conn))
-			self::connect();
-		
-		// Parameters MUST be array or null
-		if (!(is_null($params) || is_array($params)))
-			throw new \RuntimeException("\Aurora\Dbal::query argument $params MUST be an array or null.");
-		
-		try {
-			// If it is an update, insert or delete query begin transaction
-			if (!$return)
-				self::$conn->beginTransaction();
+        // Connect only if we're not already connected to the database
+        if (is_null(self::$conn)) {
+            self::connect();
+        }
+        
+        // Parameters MUST be array or null
+        if (!(is_null($params) || is_array($params))) {
+            throw new \RuntimeException("\Aurora\Dbal::query argument $params MUST be an array or null.");
+        }
+        
+        try {
+            // If it is an update, insert or delete query begin transaction
+            if (!$return) {
+                self::$conn->beginTransaction();
+            }
 
-			// Prepare the query and execute it
-			$stmt = self::$conn->prepare($sentence);
-			$result = (is_null($params)) ? $stmt->execute() :
-				$stmt->execute($params);
-			if ($result) {
-				// Get the last inserted id if it is a select query
-				if (!$return) {
+            // Prepare the query and execute it
+            $stmt = self::$conn->prepare($sentence);
+            $result = (is_null($params)) ? $stmt->execute() :
+                $stmt->execute($params);
+            if ($result) {
+                // Get the last inserted id if it is a select query
+                if (!$return) {
                     $insertedId = self::$conn->lastInsertId($name);
-					self::$conn->commit();
-					$stmt = null;
-				}
-				
-				return (($return) ? $stmt : true);
-			}
-		} catch (\PDOException $e) {
-			// Roll back if there is an error
-            if (!$return)
-			    self::$conn->rollBack();
-			throw new \Aurora\Error\DatabaseException("Query error: " . $e->getMessage());
-		}
-	}
-	
-	/**
-	 * Returns the driver used to connect to de database
-	 *
-	 * @return \Aurora\Driver\BaseDriver
-	 */
-	final public static function getDriver()
-	{
-		return self::$driver;
-	}
+                    self::$conn->commit();
+                    $stmt = null;
+                }
+                
+                return (($return) ? $stmt : true);
+            }
+        } catch (\PDOException $e) {
+            // Roll back if there is an error
+            if (!$return) {
+                self::$conn->rollBack();
+            }
+            throw new \Aurora\Error\DatabaseException("Query error: " . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Returns the driver used to connect to de database
+     *
+     * @return \Aurora\Driver\BaseDriver
+     */
+    final public static function getDriver()
+    {
+        return self::$driver;
+    }
 }

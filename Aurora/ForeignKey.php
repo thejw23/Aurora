@@ -6,7 +6,7 @@
  * @copyright   2013 José Miguel Molina
  * @link        https://github.com/mvader/Aurora
  * @license     https://raw.github.com/mvader/Aurora/master/LICENSE
- * @version     1.0.0
+ * @version     1.0.1
  * @package     Aurora
  *
  * MIT LICENSE
@@ -74,21 +74,25 @@ class ForeignKey
         $onDelete = 'NO ACTION',
         $onUpdate = 'NO ACTION'
     ) {
-        if (!class_exists($model))
+        if (!class_exists($model)) {
             throw new \RuntimeException("{$model} class does not exist.");
+        }
 
         $instance = new $model();
-        if (!isset($instance->$modelField))
+        if (!isset($instance->$modelField)) {
             throw new \RuntimeException("{$modelField} property not found for {$model}.");
+        }
 
         $this->fieldName = $modelField;
         $this->tableName = $instance->getName();
         $this->selfField = $field;
         $validActions = array('NO ACTION', 'SET NULL', 'CASCADE');
-        if (!in_array($onDelete, $validActions))
+        if (!in_array($onDelete, $validActions)) {
             throw new \RuntimeException("Invalid action {$onDelete} for ON DELETE.");
-        if (!in_array($onUpdate, $validActions))
+        }
+        if (!in_array($onUpdate, $validActions)) {
             throw new \RuntimeException("Invalid action {$onUpdate} for ON UPDATE.");
+        }
 
         $this->onUpdate = $onUpdate;
         $this->onDelete = $onDelete;

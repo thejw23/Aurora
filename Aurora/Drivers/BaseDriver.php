@@ -6,7 +6,7 @@
  * @copyright   2013 José Miguel Molina
  * @link        https://github.com/mvader/Aurora
  * @license     https://raw.github.com/mvader/Aurora/master/LICENSE
- * @version     1.0.0
+ * @version     1.0.1
  * @package     Aurora
  *
  * MIT LICENSE
@@ -42,10 +42,10 @@ namespace Aurora\Drivers;
  */
 abstract class BaseDriver
 {
-	/**
-	 * Returns the connection string to use with PDO
-	 *
-	 * @return string
-	 */
+    /**
+     * Returns the connection string to use with PDO
+     *
+     * @return string
+     */
     abstract public function getConnection();
 }

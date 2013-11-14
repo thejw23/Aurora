@@ -6,7 +6,7 @@
  * @copyright   2013 José Miguel Molina
  * @link        https://github.com/mvader/Aurora
  * @license     https://raw.github.com/mvader/Aurora/master/LICENSE
- * @version     1.0.0
+ * @version     1.0.1
  * @package     Aurora
  *
  * MIT LICENSE
@@ -84,8 +84,9 @@ class Query
      */
     final public function all()
     {
-        if (isset($this->query['limit']))
+        if (isset($this->query['limit'])) {
             unset($this->query['limit']);
+        }
         
         return self::getResults(
             $this->model,
@@ -123,16 +124,18 @@ class Query
     {
         if (\Aurora\Dbal::getDriver() 
             instanceof \Aurora\Drivers\PostgreSQLDriver) {
-            if ($num === false)
+            if ($num === false) {
                 $this->query['limit'] = (int) $offset;
-            else
+            } else {
                 $this->query['limit'] = ((int) $num) . ' OFFSET ' 
                     . ((int) $offset);
+            }
         } else {
-            if ($num === false)
+            if ($num === false) {
                 $this->query['limit'] = (int) $offset;
-            else
+            } else {
                 $this->query['limit'] = $offset . ', ' . $num;
+            }
         }
         
         $results = self::getResults(
@@ -142,10 +145,11 @@ class Query
         );
         
         if ($num == 1) {
-            if (count($results) == 1)
+            if (count($results) == 1) {
                 return $results[0];
-            else
+            } else {
                 return false;
+            }
         } else {
             return $results;
         }
@@ -157,7 +161,7 @@ class Query
      * @param array $args The filter arguments
      * @return \Aurora\Query
      */
-    public final function filterBy(array $args)
+    final public function filterBy(array $args)
     {
         $params = array();
         $where = \Aurora\SQL\Util::clauseReduce($args, $params);
@@ -174,11 +178,12 @@ class Query
      * @param array $params The parameters
      * @return \Aurora\Query
      */
-    public final function where($clause, array $params = array())
+    final public function where($clause, array $params = array())
     {
         $this->query['where'] = $clause;
-        if (count($params) > 0)
+        if (count($params) > 0) {
             $this->params = array_merge($this->params, $params);
+        }
         return $this;
     }
     
@@ -189,13 +194,15 @@ class Query
      * @param string $order The order ASC or DESC
      * @return \Aurora\Query
      */
-    public final function orderBy($field, $order = 'ASC')
+    final public function orderBy($field, $order = 'ASC')
     {
-        if ($order != 'ASC' && $order != 'DESC')
+        if ($order != 'ASC' && $order != 'DESC') {
             throw new \RuntimeException('Second parameter of \Aurora\Query::orderBy MUST be ASC or DESC.');
+        }
         
-        if (is_array($field))
+        if (is_array($field)) {
             $field = join(', ', $field);
+        }
         
         $this->query['order_by'] = "{$field} {$order}";
         return $this;
@@ -206,19 +213,22 @@ class Query
      *
      * @return string
      */
-    private final static function buildQuery($query)
+    final private static function buildQuery($query)
     {
         $sql = "SELECT {$query['fields']} FROM " . 
             "{$query['table']}";
         
-        if (isset($query['where']))
+        if (isset($query['where'])) {
             $sql .= ' WHERE ' . $query['where'];
+        }
         
-        if (isset($query['order_by']))
+        if (isset($query['order_by'])) {
             $sql .= ' ORDER BY ' . $query['order_by'];
+        }
         
-        if (isset($query['limit']))
+        if (isset($query['limit'])) {
             $sql .= ' LIMIT ' . $query['limit'];
+        }
         
         return $sql;
     }
@@ -230,10 +240,11 @@ class Query
      * @param string $sql The sql sentence
      * @param array $params The parameters
      */
-    private final static function getResults($model, $sql, $params = null)
+    final private static function getResults($model, $sql, $params = null)
     {
-        if (count($params) == 0)
+        if (count($params) == 0) {
             $params = null;
+        }
         
         $rows = \Aurora\Dbal::query($sql, $params);
         $results = array();

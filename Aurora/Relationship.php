@@ -6,7 +6,7 @@
  * @copyright   2013 José Miguel Molina
  * @link        https://github.com/mvader/Aurora
  * @license     https://raw.github.com/mvader/Aurora/master/LICENSE
- * @version     1.0.0
+ * @version     1.0.1
  * @package     Aurora
  *
  * MIT LICENSE
@@ -75,7 +75,7 @@ class Relationship
      * @param string $foreignKey The foreign key of the table where you set that relationship
      * @param bool $single If the relationship can contains a single value or not
      */
-    public final function __construct($model, $modelField, $foreignKey, $single = true)
+    final public function __construct($model, $modelField, $foreignKey, $single = true)
     {
         $this->model = $model;
         $this->modelField = $modelField;
@@ -89,7 +89,7 @@ class Relationship
      * @param string $property The property
      * @return bool
      */
-    public final function __isset($property)
+    final public function __isset($property)
     {
         return in_array($property, array_keys(get_object_vars($this)));
     }
@@ -103,10 +103,11 @@ class Relationship
      */
     public final function __get($property)
     {
-        if ($this->__isset($property))
+        if ($this->__isset($property)) {
             return $this->$property;
-        else
+        } else {
             throw new \RuntimeException("{$property} property does not exist.");
+        }
     }
     
     /**
@@ -114,7 +115,7 @@ class Relationship
      *
      * @return string
      */
-    public final function getForeignKey()
+    final public function getForeignKey()
     {
         return $this->foreignKey;
     }
@@ -124,7 +125,7 @@ class Relationship
      *
      * @param mixed $fkValue The value of the foreign key
      */
-    public final function retrieve($fkValue)
+    final public function retrieve($fkValue)
     {
         $model = $this->model;
         $query = $model::query()->filterBy(array($this->modelField, $fkValue));
@@ -132,7 +133,8 @@ class Relationship
             $this->value = $query->first();
             if ($this->value === false)
                 $this->value = $model::instance();
-        } else
+        } else {
             $this->value = $query->all();
+        }
     }
 }

@@ -1,7 +1,9 @@
 Aurora [![Build Status](https://travis-ci.org/mvader/Aurora.png?branch=master)](https://travis-ci.org/mvader/Aurora)
 ======
 
-Aurora is a fast and easy to use php ORM inspired by SQLAlchemy. It currently supports MySQL (MariaDB not tested), SQLite3 and PostgreSQL.
+Aurora is a fast and easy to use php ORM built on top of PDO. It currently supports MySQL (MariaDB not tested), SQLite3 and PostgreSQL. 
+
+PSR-0, PSR-1 and PSR-2 compliant.
 
 Creating a new model
 ---------------
@@ -108,5 +110,4 @@ $users = User::query()
 
 TODO's
 -------
-* Revise PSR-0, PSR-1 and PSR-2 compliance.
 * Logs.

@@ -6,7 +6,7 @@
  * @copyright   2013 José Miguel Molina
  * @link        https://github.com/mvader/Aurora
  * @license     https://raw.github.com/mvader/Aurora/master/LICENSE
- * @version     1.0.0
+ * @version     1.0.1
  * @package     Aurora
  *
  * MIT LICENSE
@@ -42,7 +42,6 @@ namespace Aurora;
  */
 abstract class Type
 {
-
     /**
      * Get the type representation e.g. INTEGER, VARCHAR, ...
      *
@@ -65,7 +64,7 @@ abstract class Type
      * @return mixed The parsed value
      */
     abstract public function parseValue($value);
-	
+    
     /**
      * Get the actual driver used by the database abstraction layer
      *
@@ -74,8 +73,9 @@ abstract class Type
      */
     final public function getDriver() {
         $driver = \Aurora\Dbal::getDriver();
-        if (is_null($driver))
+        if (is_null($driver)) {
             throw new \Aurora\Error\DatabaseException('Database driver must be configured before the creation of any \Aurora\Type instance.');
+        }
         return $driver;
     }
 }
