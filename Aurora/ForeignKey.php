@@ -91,7 +91,7 @@ class ForeignKey
             throw new \RuntimeException('Invalid action ' . $onDelete . ' for ON DELETE.');
         }
         if (!in_array($onUpdate, $validActions)) {
-            throw new \RuntimeException('Invalid action ' . $onDelete . ' for ON UPDATE.');
+            throw new \RuntimeException('Invalid action ' . $onUpdate . ' for ON UPDATE.');
         }
 
         $this->onUpdate = $onUpdate;
