@@ -6,7 +6,7 @@
  * @copyright   2013 José Miguel Molina
  * @link        https://github.com/mvader/Aurora
  * @license     https://raw.github.com/mvader/Aurora/master/LICENSE
- * @version     1.0.2
+ * @version     1.0.1
  * @package     Aurora
  *
  * MIT LICENSE
@@ -204,7 +204,7 @@ class Query
             $field = join(', ', $field);
         }
         
-        $this->query['order_by'] = $field . ' ' . $order;
+        $this->query['order_by'] = "{$field} {$order}";
         return $this;
     }
     
@@ -215,8 +215,8 @@ class Query
      */
     final private static function buildQuery($query)
     {
-        $sql = 'SELECT ' . $query['fields'] . ' FROM ' .
-                $query['table'];
+        $sql = "SELECT {$query['fields']} FROM " . 
+            "{$query['table']}";
         
         if (isset($query['where'])) {
             $sql .= ' WHERE ' . $query['where'];

@@ -6,7 +6,7 @@
  * @copyright   2013 José Miguel Molina
  * @link        https://github.com/mvader/Aurora
  * @license     https://raw.github.com/mvader/Aurora/master/LICENSE
- * @version     1.0.2
+ * @version     1.0.1
  * @package     Aurora
  *
  * MIT LICENSE
@@ -98,7 +98,7 @@ class Column
      * @param bool $primaryKey If the column is a primary key or not
      * @param bool $autoIncrement If the column is auto incremented or not
      * @param \Aurora\ForeignKey Foreign key settings
-     * @throws \RuntimeException If the parameters are invalid
+     * @throws \Aurora\Error\CreateTableException If the parameters are invalid
      */
     public function __construct(
         $type,
@@ -124,7 +124,7 @@ class Column
             }
         } catch (\Exception $e) {
             // If there is any kind of error with the parameters throw an error.
-            throw new \RuntimeException('Invalid parameters supplied for column creation.' . $e->getMessage());
+            throw new \Aurora\Error\CreateTableException('Invalid parameters supplied for column creation.' . $e->getMessage());
         }
     }
     
@@ -138,7 +138,7 @@ class Column
     public function __get($property)
     {
         if (!in_array($property, array_keys(get_object_vars($this)))) {
-            throw new \RuntimeException($property . ' property does not exist.');
+            throw new \RuntimeException("{$property} property does not exist.");
         }
         return $this->$property;
     }
@@ -158,19 +158,19 @@ class Column
             case 'primaryKey':
             case 'autoIncrement':
                 if (!is_bool($value)) {
-                    throw new \RuntimeException($property . ' only accepts boolean values.');
+                    throw new \RuntimeException("{$property} only accepts boolean values.");
                 }
                 break;
                 
             case 'type':
                 if (!($value instanceof \Aurora\Type)) {
-                    throw new \RuntimeException($property . ' only accepts \Aurora\Type values.');
+                    throw new \RuntimeException("{$property} only accepts \Aurora\Type values.");
                 }
                 break;
             case 'default':
             case 'value':
                 if (!$this->type->isValidValue($value) && !is_null($value)) {
-                    throw new \RuntimeException('The given value is not valid for the column type.');
+                    throw new \RuntimeException("The given value is not valid for the column type.");
                 }
                 break;
             case 'name':
@@ -196,7 +196,7 @@ class Column
     {
         $isPgSQL = (\Aurora\Dbal::getDriver() instanceof \Aurora\Drivers\PostgreSQLDriver);
         
-        $strValue = (string) $this->name;   
+        $strValue = "{$this->name}";   
         
         /**
          * PostgreSQL uses a special type for the autoincremented columns
@@ -208,7 +208,7 @@ class Column
             && $isPgSQL) {
             $strValue .= ' SERIAL PRIMARY KEY';
         } else {
-            $strValue .= ' ' . $this->type->getRepresentation();
+            $strValue .= " {$this->type->getRepresentation()}";
         }
         
         if (!$this->nullable) {
@@ -220,7 +220,7 @@ class Column
         }
         
         if (!is_null($this->default)) {
-            $strValue .= ' DEFAULT \'' . $this->default . '\'';
+            $strValue .= " DEFAULT '{$this->default}'";
         }
         
         if ($this->primaryKey 

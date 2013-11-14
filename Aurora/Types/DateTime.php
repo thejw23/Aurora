@@ -6,7 +6,7 @@
  * @copyright   2013 José Miguel Molina
  * @link        https://github.com/mvader/Aurora
  * @license     https://raw.github.com/mvader/Aurora/master/LICENSE
- * @version     1.0.2
+ * @version     1.0.0
  * @package     Aurora
  *
  * MIT LICENSE
@@ -76,7 +76,7 @@ class DateTime extends \Aurora\Type
         
         if (!($driver instanceof \Aurora\Drivers\SQLiteDriver)) {
             return ($driver instanceof \Aurora\Drivers\MySQLDriver) 
-                ? 'DATETIME' : 'TIMESTAMP';
+                ? "DATETIME" : "TIMESTAMP";
         }
         return 'INTEGER';
     }
@@ -95,7 +95,7 @@ class DateTime extends \Aurora\Type
             } catch (\Exception $e) {
                 // Epoch (retrieved from SQLite)
                 try {
-                    return new \DateTime('@' . $value);
+                    return new \DateTime("@$value");
                 } catch (\Exception $e) {
                     return false;
                 }
@@ -117,11 +117,11 @@ class DateTime extends \Aurora\Type
         $value = $this->retrieveValue($value);
         
         if (!$value)
-            throw new \RuntimeException('The given value is not a valid \Aurora\Types\DateTime value.');
+            throw new \RuntimeException("The given value is not a valid \Aurora\Types\DateTime value.");
         
         $driver = $this->getDriver();
         if (!($driver instanceof \Aurora\Drivers\SQLiteDriver)) {
-            return (string) $value->format('Y-m-d H:i:s');
+            return (string) $value->format("Y-m-d H:i:s");
         }
         return (int) $value->format('U');
     }

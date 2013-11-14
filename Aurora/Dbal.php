@@ -6,7 +6,7 @@
  * @copyright   2013 José Miguel Molina
  * @link        https://github.com/mvader/Aurora
  * @license     https://raw.github.com/mvader/Aurora/master/LICENSE
- * @version     1.0.2
+ * @version     1.0.1
  * @package     Aurora
  *
  * MIT LICENSE
@@ -87,7 +87,7 @@ class Dbal
                 \PDO::ERRMODE_EXCEPTION
             );
         } catch (\PDOException $e) {
-            throw new \RuntimeException('Unable to establish database connection.' . $e->getMessage());
+            throw new \Aurora\Error\DatabaseException('Unable to establish database connection.' . $e->getMessage());
         }
     }
     
@@ -117,7 +117,7 @@ class Dbal
         
         // Parameters MUST be array or null
         if (!(is_null($params) || is_array($params))) {
-            throw new \RuntimeException('\Aurora\Dbal::query argument $params MUST be an array or null.');
+            throw new \RuntimeException("\Aurora\Dbal::query argument $params MUST be an array or null.");
         }
         
         try {
@@ -145,7 +145,7 @@ class Dbal
             if (!$return) {
                 self::$conn->rollBack();
             }
-            throw new \RuntimeException('Query error: ' . $e->getMessage());
+            throw new \Aurora\Error\DatabaseException("Query error: " . $e->getMessage());
         }
     }
     

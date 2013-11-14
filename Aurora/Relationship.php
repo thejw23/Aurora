@@ -6,7 +6,7 @@
  * @copyright   2013 José Miguel Molina
  * @link        https://github.com/mvader/Aurora
  * @license     https://raw.github.com/mvader/Aurora/master/LICENSE
- * @version     1.0.2
+ * @version     1.0.1
  * @package     Aurora
  *
  * MIT LICENSE
@@ -106,7 +106,7 @@ class Relationship
         if ($this->__isset($property)) {
             return $this->$property;
         } else {
-            throw new \RuntimeException($property . ' property does not exist.');
+            throw new \RuntimeException("{$property} property does not exist.");
         }
     }
     

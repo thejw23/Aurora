@@ -30,73 +30,12 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-namespace Aurora\Drivers;
+namespace Aurora\Error;
 
 /**
- * MySQLDriver
- *
- * Driver to connect to MySQL.
- *
- * @package Aurora
- * @author José Miguel Molina
+ * @deprecated 1.0.1 It will be removed in the next version.
  */
-class MySQLDriver extends \Aurora\Drivers\BaseDriver
+class CreateTableException extends \Exception
 {
-    /**
-     * @var string Database host
-     */
-    private $host;
-
-    /**
-     * @var string Database name
-     */
-    private $dbname;
-
-    /**
-     * @var int|string Database port
-     */
-    private $port;
-
-    /**
-     * @var string Database user
-     */
-    private $user;
-
-    /**
-     * @var string Database password
-     */
-    private $password;
     
-    /**
-     * Constructor
-     *
-     * @param string $host The database host
-     * @param string $dbname The database name
-     * @param int|string $port The database port
-     * @param string $user The database user
-     * @param string $password The database password
-     */
-    public function __construct($host, $dbname, $port, $user, $password)
-    {
-        $this->host = $host;
-        $this->dbname = $dbname;
-        $this->port = (int) $port;
-        $this->user = $user;
-        $this->password = $password;
-    }
-    
-    /**
-     * Returns the connection string to use with PDO
-     *
-     * @return string
-     */
-    public function getConnection()
-    {
-        return new \PDO(
-            "mysql:host={$this->host};dbname={$this->dbname};" . 
-            "port={$this->port}",
-            $this->user,
-            $this->password
-        );
-    }
 }
