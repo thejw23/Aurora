@@ -49,6 +49,7 @@ class User extends Table
 // To create the table for this model you just need to create an instance of User and call
 // the createTable method.
 $userTable = new User();
+
 $userTable->createTable();
 ```
 
