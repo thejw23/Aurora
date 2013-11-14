@@ -6,7 +6,7 @@
  * @copyright   2013 José Miguel Molina
  * @link        https://github.com/mvader/Aurora
  * @license     https://raw.github.com/mvader/Aurora/master/LICENSE
- * @version     1.0.1
+ * @version     1.0.2
  * @package     Aurora
  *
  * MIT LICENSE
@@ -162,7 +162,7 @@ abstract class Table
                 return $this->$property->type->parseValue($value);
             }
         } else {
-            throw new \RuntimeException("{$property} property does not exist.");
+            throw new \RuntimeException($property . ' property does not exist.');
         }
     }
     
@@ -285,13 +285,13 @@ abstract class Table
                 $columnsToInsert
             ));
             
-            $sql .= " ({$keys}) VALUES ({$values})";
+            $sql .= ' (' . $keys . ') VALUES (' . $values . ')';
             
             // We need the name of the constraint to get the last insert id in postgresql
             if (\Aurora\Dbal::getDriver() 
                 instanceof \Aurora\Drivers\PostgreSQLDriver
                 && $pk != null) {
-                $name = "{$this->name}_{$pk->name}_seq";
+                $name = $this->name . '_' . $pk->name . '_seq';
             }
 
             $id = null;
@@ -331,12 +331,12 @@ abstract class Table
                     } else {
                         $args[] = $col->value;
                     }
-                    return "{$col->name} = ?";
+                    return $col->name . ' = ?';
                 },
                 $columnsToInsert
             ));
             
-            $sql .= "{$fields} WHERE ";
+            $sql .= $fields . ' WHERE ';
             $sql .= \Aurora\SQL\Util::andEqualColumns($primaryKeys);
             
             foreach ($primaryKeys as $key) {
@@ -384,7 +384,7 @@ abstract class Table
      */
     final public function dropTable()
     {
-        $sql = "DROP TABLE {$this->name}";
+        $sql = 'DROP TABLE ' . $this->name;
         return \Aurora\Dbal::query($sql, null, false);
     }
     
@@ -408,7 +408,7 @@ abstract class Table
     final private function getPrimaryKeyClause($primaryKeys)
     {
         if (count($primaryKeys) < 1) {
-            throw new \RuntimeException("{$this->name} table does not have a primary key.");
+            throw new \RuntimeException($this->name . ' table does not have a primary key.');
         }
 
         $fields = join(', ', $primaryKeys);
@@ -417,7 +417,7 @@ abstract class Table
             || \Aurora\Dbal::getDriver() instanceof \Aurora\Drivers\PostgreSQLDriver)) {
             return array();
         } else {
-            return array("PRIMARY KEY ({$fields})");
+            return array('PRIMARY KEY (' . $fields . ')');
         }
     }
     
@@ -434,7 +434,7 @@ abstract class Table
         $pk = $this->getPrimaryKeyClause($primaryKeys);
         $fields = array_merge($columns, $pk, $constraints);
         
-        $strValue = "CREATE TABLE {$this->name} (";
+        $strValue = 'CREATE TABLE ' . $this->name . ' (';
         $strValue .= join(',', array_map(
             function ($item) {
                 return (string) $item;
