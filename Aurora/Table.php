@@ -6,7 +6,7 @@
  * @copyright   2013 José Miguel Molina
  * @link        https://github.com/mvader/Aurora
  * @license     https://raw.github.com/mvader/Aurora/master/LICENSE
- * @version     1.0.0
+ * @version     1.0.1
  * @package     Aurora
  *
  * MIT LICENSE
@@ -124,8 +124,9 @@ abstract class Table
                 $this->$property->retrieve($this->$fk->value);
             }
             return $this->$property->value;
-        } else
+        } else {
             return null;
+        }
     }
     
     /**
@@ -138,8 +139,9 @@ abstract class Table
     {
         if (in_array($property, $this->getProperties()) &&
             !in_array($property, self::$baseProperties)) {
-            if ($this->$property instanceof \Aurora\Column)
+            if ($this->$property instanceof \Aurora\Column) {
                 $this->$property->value = $value;
+            }
         }
     }
     
@@ -154,12 +156,14 @@ abstract class Table
     final public function parseValue($property, $value)
     {
         if ($this->__isset($property)) {
-            if ($this->$property->type instanceof \Aurora\Types\DateTime)
+            if ($this->$property->type instanceof \Aurora\Types\DateTime) {
                 return $this->$property->type->retrieveValue($value);
-            else
+            } else {
                 return $this->$property->type->parseValue($value);
-        } else 
+            }
+        } else {
             throw new \RuntimeException("{$property} property does not exist.");
+        }
     }
     
     /**
@@ -192,10 +196,12 @@ abstract class Table
         foreach ($columnNames as $col) {
             if ($this->$col instanceof \Aurora\Column) {
                 $this->$col->name = $col;
-                if ($this->$col->foreignKey instanceof \Aurora\ForeignKey)
+                if ($this->$col->foreignKey instanceof \Aurora\ForeignKey) {
                     $constraints[] = $this->$col->foreignKey;
-                if ($this->$col->primaryKey)
+                }
+                if ($this->$col->primaryKey) {
                     $primaryKeys[] = $col;
+                }
                 $columns[] = $this->$col;
             } elseif ($this->$col instanceof \Aurora\Relationship) {
                 continue;
@@ -214,7 +220,7 @@ abstract class Table
     final public function hasColumn($column)
     {
         return count(array_filter($this->getColumns(), 
-            function($col) use ($column) {
+            function ($col) use ($column) {
                 return $col->name === $column;
             }
         )) > 0;
@@ -247,7 +253,7 @@ abstract class Table
             // because, you know, you won't set their values yourself
             $columnsToInsert = array_filter(
                 $this->getColumns(),
-                function($col) use (&$pk) {
+                function ($col) use (&$pk) {
                     if (is_null($col->value) && 
                         $col->primaryKey && 
                         $col->autoIncrement) {
@@ -261,18 +267,19 @@ abstract class Table
             $args = array();
             // Find the column names and the column values
             $keys = join(', ', array_map(
-                function($col) use (&$args) {
-                    if ($col->type instanceof \Aurora\Types\DateTime)
+                function ($col) use (&$args) {
+                    if ($col->type instanceof \Aurora\Types\DateTime) {
                         $args[] = $col->type->parseValue($col->value);
-                    else
+                    } else {
                         $args[] = $col->value;
+                    }
                     return $col->name;
                 },
                 $columnsToInsert
             ));
             
             $values = join(', ', array_map(
-                function($col) {
+                function ($col) {
                     return '?';
                 },
                 $columnsToInsert
@@ -292,8 +299,9 @@ abstract class Table
             $this->notInserted = false;
 
             // Set the value of primary key to the last insert id
-            if ($id !== '0' && !is_null($pk))
+            if ($id !== '0' && !is_null($pk)) {
                 $pk->value = $pk->type->parseValue($id);
+            }
             
             return $result;
         } else {
@@ -302,24 +310,27 @@ abstract class Table
             // Get the columns and the primary keys
             $columnsToInsert = array_filter(
                 $this->getColumns(),
-                function($col) use (&$primaryKeys) {
-                    if ($col->primaryKey)
+                function ($col) use (&$primaryKeys) {
+                    if ($col->primaryKey) {
                         $primaryKeys[] = $col;
+                    }
                     return !is_null($col->value) && !$col->primaryKey;
                 }
             );
             
             // If there is no primary keys we won't be able to update the record
-            if (count($primaryKeys) == 0)
+            if (count($primaryKeys) == 0) {
                 throw new \RuntimeException('Error saving the object. There is not value for the primary key field.');
+            }
             
             $args = array();
             $fields = join(', ', array_map(
-                function($col) use (&$args) {
-                    if ($col->type instanceof \Aurora\Types\DateTime)
+                function ($col) use (&$args) {
+                    if ($col->type instanceof \Aurora\Types\DateTime) {
                         $args[] = $col->type->parseValue($col->value);
-                    else
+                    } else {
                         $args[] = $col->value;
+                    }
                     return "{$col->name} = ?";
                 },
                 $columnsToInsert
@@ -351,12 +362,13 @@ abstract class Table
             }
         }
         
-        if (count($primaryKeys) == 0)
+        if (count($primaryKeys) == 0) {
             throw new \RuntimeException('Error deleting the object. There is not value for the primary key field.');
+        }
         
         $sql .= \Aurora\SQL\Util::andEqualColumns($primaryKeys);
         $args = array_map(
-            function($col) {
+            function ($col) {
                 return $col->value;
             },
             $primaryKeys
@@ -395,16 +407,18 @@ abstract class Table
      */
     final private function getPrimaryKeyClause($primaryKeys)
     {
-        if (count($primaryKeys) < 1)
+        if (count($primaryKeys) < 1) {
             throw new \RuntimeException("{$this->name} table does not have a primary key.");
+        }
 
         $fields = join(', ', $primaryKeys);
         if (count($primaryKeys) == 1 
             && (\Aurora\Dbal::getDriver() instanceof \Aurora\Drivers\SQLiteDriver
-            || \Aurora\Dbal::getDriver() instanceof \Aurora\Drivers\PostgreSQLDriver))
+            || \Aurora\Dbal::getDriver() instanceof \Aurora\Drivers\PostgreSQLDriver)) {
             return array();
-        else
+        } else {
             return array("PRIMARY KEY ({$fields})");
+        }
     }
     
     /**
@@ -421,9 +435,12 @@ abstract class Table
         $fields = array_merge($columns, $pk, $constraints);
         
         $strValue = "CREATE TABLE {$this->name} (";
-        $strValue .= join(',', array_map(function($item) {
-            return (string) $item;
-        }, $fields));
+        $strValue .= join(',', array_map(
+            function ($item) {
+                return (string) $item;
+            },
+            $fields
+        ));
         $strValue .= ')';
         
         return $strValue;
