@@ -6,7 +6,7 @@
  * @copyright   2013 José Miguel Molina
  * @link        https://github.com/mvader/Aurora
  * @license     https://raw.github.com/mvader/Aurora/master/LICENSE
- * @version     1.0.1
+ * @version     1.0.2
  * @package     Aurora
  *
  * MIT LICENSE
@@ -40,7 +40,7 @@ namespace Aurora\Drivers;
  * @package Aurora
  * @author José Miguel Molina
  */
-class PostgreSQLDriver extends \Aurora\Drivers\BaseDriver
+class PostgreSQLDriver implements \Aurora\Drivers\BaseDriver
 {
     /**
      * @var string Database host
@@ -93,9 +93,9 @@ class PostgreSQLDriver extends \Aurora\Drivers\BaseDriver
     public function getConnection()
     {
         return new \PDO(
-            "pgsql:host={$this->host};port={$this->port};" . 
-            "dbname={$this->dbname};user={$this->user};" .
-            "password={$this->password}"
+            'pgsql:host=' . $this->host . ';port=' .$this->port . 
+            ';dbname=' . $this->dbname . ';user=' . $this->user .
+            ';password=' . $this->password
         );
     }
 }

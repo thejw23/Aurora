@@ -6,7 +6,7 @@
  * @copyright   2013 José Miguel Molina
  * @link        https://github.com/mvader/Aurora
  * @license     https://raw.github.com/mvader/Aurora/master/LICENSE
- * @version     1.0.1
+ * @version     1.0.2
  * @package     Aurora
  *
  * MIT LICENSE
@@ -75,12 +75,12 @@ class ForeignKey
         $onUpdate = 'NO ACTION'
     ) {
         if (!class_exists($model)) {
-            throw new \RuntimeException("{$model} class does not exist.");
+            throw new \RuntimeException($model . ' class does not exist.');
         }
 
         $instance = new $model();
         if (!isset($instance->$modelField)) {
-            throw new \RuntimeException("{$modelField} property not found for {$model}.");
+            throw new \RuntimeException($modelField . ' property not found for ' . $model);
         }
 
         $this->fieldName = $modelField;
@@ -88,10 +88,10 @@ class ForeignKey
         $this->selfField = $field;
         $validActions = array('NO ACTION', 'SET NULL', 'CASCADE');
         if (!in_array($onDelete, $validActions)) {
-            throw new \RuntimeException("Invalid action {$onDelete} for ON DELETE.");
+            throw new \RuntimeException('Invalid action ' . $onDelete . ' for ON DELETE.');
         }
         if (!in_array($onUpdate, $validActions)) {
-            throw new \RuntimeException("Invalid action {$onUpdate} for ON UPDATE.");
+            throw new \RuntimeException('Invalid action ' . $onDelete . ' for ON UPDATE.');
         }
 
         $this->onUpdate = $onUpdate;
@@ -105,8 +105,8 @@ class ForeignKey
      */
     public final function __toString()
     {
-        return "FOREIGN KEY ({$this->selfField}) REFERENCES {$this->tableName}" . 
-                "({$this->fieldName}) ON UPDATE {$this->onUpdate} ON DELETE " . 
-                "{$this->onDelete}";
+        return 'FOREIGN KEY (' . $this->selfField . ') REFERENCES ' .
+                $this->tableName . '(' . $this->fieldName . ') ON UPDATE ' .
+                $this->onUpdate . ' ON DELETE ' . $this->onDelete;
     }
 }
