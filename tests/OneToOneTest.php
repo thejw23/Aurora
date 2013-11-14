@@ -6,7 +6,7 @@
  * @copyright   2013 José Miguel Molina
  * @link        https://github.com/mvader/Aurora
  * @license     https://raw.github.com/mvader/Aurora/master/LICENSE
- * @version     1.0.1
+ * @version     1.0.2
  * @package     Aurora
  *
  * MIT LICENSE
@@ -144,7 +144,7 @@ class OneToOneTest extends PHPUnit_Framework_TestCase
         try {
             $this->assertEquals(true, $user->dropTable());
             $this->assertEquals(true, $profile->dropTable());
-        } catch (\Aurora\Error\DatabaseException $e) {
+        } catch (\RuntimeException $e) {
             $exceptionThrown = true;
             $this->assertEquals(true, true);
         }

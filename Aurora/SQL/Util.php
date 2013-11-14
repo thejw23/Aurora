@@ -6,7 +6,7 @@
  * @copyright   2013 José Miguel Molina
  * @link        https://github.com/mvader/Aurora
  * @license     https://raw.github.com/mvader/Aurora/master/LICENSE
- * @version     1.0.1
+ * @version     1.0.2
  * @package     Aurora
  *
  * MIT LICENSE
@@ -69,7 +69,7 @@ class Util
             function ($field) {
                 $key = ($field instanceof \Aurora\Column) ? $field->name :
                     $field;
-                return "{$key} = ?";
+                return $key . ' = ?';
             },
             $fields
         ));
@@ -86,15 +86,15 @@ class Util
     public static function clauseReduce(array $args, array &$params)
     {
         if (count($args) < 2 || count($args) > 3) {
-            throw new \RuntimeException("Invalid number of parameters for clause.");
+            throw new \RuntimeException('Invalid number of parameters for clause.');
         }
         
         if (count($args) == 2) {
             $params[] = $args[1];
-            return "{$args[0]} = ?";
+            return $args[0] . ' = ?';
         } else {
             if (!in_array($args[1], self::$allowedOperators)) {
-                throw new \RuntimeException("{$args[1]} is not a valid SQL operator.");
+                throw new \RuntimeException($args[1] . ' is not a valid SQL operator.');
             }
             
             if (is_array($args[0])) {
@@ -105,7 +105,7 @@ class Util
             
             if ($args[1] == 'IN') {
                 if (!is_array($args[2])) {
-                    throw new \RuntimeException("Expected an array after an IN operator.");
+                    throw new \RuntimeException('Expected an array after an IN operator.');
                 }
                 
                 $b = '('. join(', ', array_map(
@@ -124,7 +124,7 @@ class Util
                 }
             }
             
-            return "{$a} {$args[1]} {$b}";
+            return $a . ' ' . $args[1] . ' ' . $b;
         }
     }
 }
