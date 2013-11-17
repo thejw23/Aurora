@@ -12,14 +12,8 @@
          bootstrap="tests/bootstrap.php"
 >
     <testsuites>
-        <testsuite name="Ninetales tests">
+        <testsuite name="Aurora tests">
             <directory>./tests/</directory>
         </testsuite>
     </testsuites>
-
-    <filter>
-        <whitelist>
-            <directory>./Ninetales/</directory>
-        </whitelist>
-    </filter>
 </phpunit>
