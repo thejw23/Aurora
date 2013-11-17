@@ -107,7 +107,3 @@ $users = User::query()
     ))
     ->limit(1);
 ```
-
-TODO's
--------
-* Logs.
