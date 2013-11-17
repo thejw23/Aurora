@@ -40,8 +40,19 @@ namespace Aurora\Types;
  * @package Aurora
  * @author José Miguel Molina
  */
-class Boolean extends \Aurora\Types\Int
+class Boolean extends \Aurora\Type
 {
+	/**
+     * Check if a value is valid for this type
+     *
+     * @param mixed $value The value
+     * @return bool
+     */
+	public function isValidValue($value)
+	{
+		return is_bool($value);
+	}
+    
 	/**
      * Get the type representation e.g. INTEGER, VARCHAR, ...
      *
@@ -52,7 +63,7 @@ class Boolean extends \Aurora\Types\Int
 		$driver = $this->getDriver();
 		
 		if (!($driver instanceof \Aurora\Drivers\SQLiteDriver)) {
-			return 'TINYINT UNSIGNED');
+			return 'TINYINT UNSIGNED';
 		}
 		return 'INTEGER';
 	}
