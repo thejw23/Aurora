@@ -42,18 +42,19 @@ namespace Aurora\Types;
  */
 class SmallInt extends \Aurora\Types\Int
 {
-	/**
+    /**
      * Get the type representation e.g. INTEGER, VARCHAR, ...
      *
      * @return string
      */
-	public function getRepresentation()
-	{
-		$driver = $this->getDriver();
-		
-		if (!($driver instanceof \Aurora\Drivers\SQLiteDriver)) {
-			return 'SMALLINT' . (($this->unsigned) ? 'UNSIGNED' : '');
-		}
-		return 'INTEGER';
-	}
+    public function getRepresentation()
+    {
+        $driver = $this->getDriver();
+
+        if (!($driver instanceof \Aurora\Drivers\SQLiteDriver)) {
+            return 'SMALLINT' . (($this->unsigned) ? 'UNSIGNED' : '');
+        }
+
+        return 'INTEGER';
+    }
 }

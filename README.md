@@ -1,9 +1,20 @@
-Aurora [![Build Status](https://travis-ci.org/mvader/Aurora.png?branch=master)](https://travis-ci.org/mvader/Aurora)
+Aurora 
 ======
 
 Aurora is a fast and easy to use php ORM built on top of PDO. It currently supports MySQL (MariaDB not tested), SQLite3 and PostgreSQL. 
 
 PSR-0, PSR-1 and PSR-2 compliant.
+
+# Changes in this fork
+
+* added SET NAMES
+* added \Aurora\DataQuery for fetching data without creating models
+* added load() for getting single row identified by ID
+* added \Aurora\PDO\E_PDOStatement for getting full query
+* added != and = to \Aurora\SQL\Util $allowedOperators
+* added support for profiler
+* added to \Aurora\Table method as_array(), getting fields from ie. validation
+* TESTS ARE NOT FIXED (yet)
 
 Creating a new model
 ---------------

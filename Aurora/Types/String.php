@@ -46,7 +46,7 @@ class String extends \Aurora\Type
      * @var int Maximum number of characters
      */
     private $size;
-    
+
     /**
      * Constructor
      *
@@ -56,18 +56,18 @@ class String extends \Aurora\Type
     {
         $this->size = $size;
     }
-    
+
     /**
      * Check if a value is valid for this type
      *
-     * @param mixed $value The value
+     * @param  mixed $value The value
      * @return bool
      */
     public function isValidValue($value)
     {
         return is_string($value);
     }
-    
+
     /**
      * Get the type representation e.g. INTEGER, VARCHAR, ...
      *
@@ -76,21 +76,26 @@ class String extends \Aurora\Type
     public function getRepresentation()
     {
         $driver = $this->getDriver();
-        
+
         if (!($driver instanceof \Aurora\Drivers\SQLiteDriver)) {
             return 'VARCHAR(' . $this->size . ')';
         }
+
         return 'TEXT';
     }
-    
+
     /**
      * Parse a value before inserting it into the database
      *
-     * @param mixed $value The value
+     * @param  mixed $value The value
      * @return mixed The parsed value
      */
     public function parseValue($value)
     {
-        return (string) $value;
+        if (is_null($value)) {
+            return NULL;
+        } else {
+            return (string) $value;
+        }
     }
 }

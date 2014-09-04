@@ -45,7 +45,7 @@ class DateTime extends \Aurora\Type
     /**
      * Check if a value is valid for this type
      *
-     * @param mixed $value The value
+     * @param  mixed $value The value
      * @return bool
      */
     public function isValidValue($value)
@@ -58,13 +58,13 @@ class DateTime extends \Aurora\Type
             } catch (\Exception $e) {
                 return false;
             }
-            
+
             return true;
         }
-        
+
         return false;
     }
-    
+
     /**
      * Get the type representation e.g. INTEGER, VARCHAR, ...
      *
@@ -73,18 +73,19 @@ class DateTime extends \Aurora\Type
     public function getRepresentation()
     {
         $driver = $this->getDriver();
-        
+
         if (!($driver instanceof \Aurora\Drivers\SQLiteDriver)) {
-            return ($driver instanceof \Aurora\Drivers\MySQLDriver) 
+            return ($driver instanceof \Aurora\Drivers\MySQLDriver)
                 ? 'DATETIME' : 'TIMESTAMP';
         }
+
         return 'INTEGER';
     }
-    
+
     /**
      * Parses a value retrieved from the database
      *
-     * @param mixed $value The value
+     * @param  mixed     $value The value
      * @return \DateTime
      */
     public function retrieveValue($value)
@@ -104,25 +105,26 @@ class DateTime extends \Aurora\Type
             return $value;
         }
     }
-    
+
     /**
      * Parse a value before inserting it into the database
      *
-     * @param mixed $value The value
-     * @return mixed The parsed value
+     * @param  mixed             $value The value
+     * @return mixed             The parsed value
      * @throws \RuntimeException
      */
     public function parseValue($value)
     {
         $value = $this->retrieveValue($value);
-        
+
         if (!$value)
             throw new \RuntimeException('The given value is not a valid \Aurora\Types\DateTime value.');
-        
+
         $driver = $this->getDriver();
         if (!($driver instanceof \Aurora\Drivers\SQLiteDriver)) {
             return (string) $value->format('Y-m-d H:i:s');
         }
+
         return (int) $value->format('U');
     }
 }

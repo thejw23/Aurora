@@ -51,15 +51,19 @@ abstract class Table
     public $characterSet = null;
     public $collation = null;
 
+    private $changedFields = array();
+
     /**
-     * @var string Table name 
+     * @var string Table name
      */
-    public $name = null;
+    public $tableName = null;
 
     /**
      * @var bool If the record of that instance has been inserted or not
      */
     private $notInserted = true;
+
+    public $loaded = false;
 
     /**
      * @var array The base properties
@@ -69,10 +73,12 @@ abstract class Table
         'autoIncrement',
         'characterSet',
         'collation',
-        'name',
+        'tableName',
         'notInserted',
+        'changedFields',
+        'loaded',
     );
-    
+
     /**
      * Constructor
      *
@@ -82,7 +88,7 @@ abstract class Table
     {
         $this->setup();
     }
-    
+
     /**
      * Returns the properties of the object
      *
@@ -92,11 +98,11 @@ abstract class Table
     {
         return array_keys(get_object_vars($this));
     }
-    
+
     /**
      * Checks for the existance of the property
      *
-     * @param string $property The property
+     * @param  string $property The property
      * @return bool
      */
     public function __isset($property)
@@ -104,16 +110,16 @@ abstract class Table
         return in_array($property, $this->getProperties()) &&
             !in_array($property, self::$baseProperties);
     }
-    
+
     /**
      * Returns the value of the requested property.
      *
      * It doesn't return any of the base properties because they don't have a value.
      * This is because the properties you will define in your model will be protected,
      * you can access the base properties as usual because they're public.
-     * 
+     *
      * @param string $property The property
-     * @return 
+     * @return
      */
     public function __get($property)
     {
@@ -123,17 +129,18 @@ abstract class Table
                 $fk = $this->$property->getForeignKey();
                 $this->$property->retrieve($this->$fk->value);
             }
+
             return $this->$property->value;
         } else {
             return null;
         }
     }
-    
+
     /**
      * Sets the value for a property
      *
      * @param string $property The property
-     * @param mixed $value The value
+     * @param mixed  $value    The value
      */
     public function __set($property, $value)
     {
@@ -141,15 +148,19 @@ abstract class Table
             !in_array($property, self::$baseProperties)) {
             if ($this->$property instanceof \Aurora\Column) {
                 $this->$property->value = $value;
+
+                if ($this->loaded) {
+                    $this->changedFields[] = $property;
+                }
             }
         }
     }
-    
+
     /**
      * Returns the parsed value of a property
      *
-     * @param string $property The property
-     * @param mixed $value The value
+     * @param  string            $property The property
+     * @param  mixed             $value    The value
      * @return mixed
      * @throws \RuntimeException If the property does not exist
      */
@@ -165,22 +176,22 @@ abstract class Table
             throw new \RuntimeException($property . ' property does not exist.');
         }
     }
-    
+
     /**
      * Returns the name of the table or UNNAMED
-     * 
+     *
      * @return string
      */
     final public function getName()
     {
-        return (!is_null($this->name)) ? $this->name : 'UNNAMED';
+        return (!is_null($this->tableName)) ? $this->tableName : 'UNNAMED';
     }
-    
+
     /**
      * Returns the columns of the table and retrieves the constraints and primary keys found.
      *
-     * @param array $constraints The reference of the var where the found constraints will be stored
-     * @param array $primaryKeys The reference of the var where the found primary keys will be stored
+     * @param  array $constraints The reference of the var where the found constraints will be stored
+     * @param  array $primaryKeys The reference of the var where the found primary keys will be stored
      * @return array
      */
     final public function getColumns(array &$constraints = array(), array &$primaryKeys = array())
@@ -190,9 +201,9 @@ abstract class Table
             $this->getProperties(),
             self::$baseProperties
         );
-        
+
         $columns = array();
-        
+
         foreach ($columnNames as $col) {
             if ($this->$col instanceof \Aurora\Column) {
                 $this->$col->name = $col;
@@ -207,63 +218,64 @@ abstract class Table
                 continue;
             }
         }
-        
+
         return $columns;
     }
-    
+
     /**
      * Finds if a column exists
      *
-     * @param string $column The column
+     * @param  string $column The column
      * @return bool
      */
     final public function hasColumn($column)
     {
-        return count(array_filter($this->getColumns(), 
+        return count(array_filter($this->getColumns(),
             function ($col) use ($column) {
                 return $col->name === $column;
             }
         )) > 0;
     }
-    
+
     /**
      * Here is where the magic happens. You need to extend that method.
      * Here will be where you setup your columns and relationships
      */
     abstract protected function setup();
-    
+
     /**
      * Saves the record held by the instance of the model.
      *
      * If the record hasn't been inserted yet it is inserted, otherwhise, it is updated.
      *
-     * @param bool $forceUpdate Force the update (if you broken something with this, it's up to you)
+     * @param  bool              $forceUpdate Force the update (if you broken something with this, it's up to you)
      * @throws \RuntimeException If there is an error
      */
     final public function save($forceUpdate = false)
     {
         // Hasn't been inserted yet? do it
         if ($this->notInserted && !$forceUpdate) {
-            $sql = 'INSERT INTO ' . $this->name;
-            
+            $sql = 'INSERT INTO ' . $this->tableName;
+
             $pk = null;
             $name = null;
-            
+
             // The columns to insert removing the autoincremented column keys
             // because, you know, you won't set their values yourself
             $columnsToInsert = array_filter(
                 $this->getColumns(),
                 function ($col) use (&$pk) {
-                    if (is_null($col->value) && 
-                        $col->primaryKey && 
+                    if (is_null($col->value) &&
+                        $col->primaryKey &&
                         $col->autoIncrement) {
                         $pk = $col;
                     }
-                    return !is_null($col->value) && 
+
+                    return !is_null($col->value) &&
                         !($col->primaryKey && $col->autoIncrement);
                 }
             );
-            
+
             $args = array();
             // Find the column names and the column values
             $keys = join(', ', array_map(
@@ -273,28 +285,30 @@ abstract class Table
                     } else {
                         $args[] = $col->value;
                     }
+
                     return $col->name;
                 },
                 $columnsToInsert
             ));
-            
+
             $values = join(', ', array_map(
                 function ($col) {
                     return '?';
                 },
                 $columnsToInsert
             ));
-            
+
             $sql .= ' (' . $keys . ') VALUES (' . $values . ')';
-            
+
             // We need the name of the constraint to get the last insert id in postgresql
-            if (\Aurora\Dbal::getDriver() 
+            if (\Aurora\Dbal::getDriver()
                 instanceof \Aurora\Drivers\PostgreSQLDriver
                 && $pk != null) {
-                $name = $this->name . '_' . $pk->name . '_seq';
+                $name = $this->tableName . '_' . $pk->name . '_seq';
             }
 
             $id = null;
+
             $result = \Aurora\Dbal::query($sql, $args, false, $id, $name);
             $this->notInserted = false;
 
@@ -302,10 +316,10 @@ abstract class Table
             if ($id !== '0' && !is_null($pk)) {
                 $pk->value = $pk->type->parseValue($id);
             }
-            
+
             return $result;
         } else {
-            $sql = 'UPDATE ' . $this->name . ' SET ';
+            $sql = 'UPDATE ' . $this->tableName . ' SET ';
             $primaryKeys = array();
             // Get the columns and the primary keys
             $columnsToInsert = array_filter(
@@ -314,15 +328,16 @@ abstract class Table
                     if ($col->primaryKey) {
                         $primaryKeys[] = $col;
                     }
-                    return !is_null($col->value) && !$col->primaryKey;
+
+                    return !is_null($col->value) && !$col->primaryKey and in_array($col->name, $this->changedFields);
                 }
             );
-            
+
             // If there is no primary keys we won't be able to update the record
             if (count($primaryKeys) == 0) {
                 throw new \RuntimeException('Error saving the object. There is not value for the primary key field.');
             }
-            
+
             $args = array();
             $fields = join(', ', array_map(
                 function ($col) use (&$args) {
@@ -331,14 +346,15 @@ abstract class Table
                     } else {
                         $args[] = $col->value;
                     }
+
                     return $col->name . ' = ?';
                 },
                 $columnsToInsert
             ));
-            
+
             $sql .= $fields . ' WHERE ';
             $sql .= \Aurora\SQL\Util::andEqualColumns($primaryKeys);
-            
+
             foreach ($primaryKeys as $key) {
                 $args[] = $key->value;
             }
@@ -346,7 +362,7 @@ abstract class Table
             return \Aurora\Dbal::query($sql, $args, false);
         }
     }
-    
+
     /**
      * Removes the current record from the database
      *
@@ -354,18 +370,18 @@ abstract class Table
      */
     final public function remove()
     {
-        $sql = 'DELETE FROM ' . $this->name . ' WHERE ';
+        $sql = 'DELETE FROM ' . $this->tableName . ' WHERE ';
         $primaryKeys = array();
         foreach ($this->getColumns() as $col) {
             if ($col->primaryKey) {
                 $primaryKeys[] = $col;
             }
         }
-        
+
         if (count($primaryKeys) == 0) {
             throw new \RuntimeException('Error deleting the object. There is not value for the primary key field.');
         }
-        
+
         $sql .= \Aurora\SQL\Util::andEqualColumns($primaryKeys);
         $args = array_map(
             function ($col) {
@@ -376,18 +392,19 @@ abstract class Table
 
         return \Aurora\Dbal::query($sql, $args, false);
     }
-    
+
     /**
      * Drops the table
-     * 
+     *
      * @return bool If the table was successfully dropped or not
      */
     final public function dropTable()
     {
-        $sql = 'DROP TABLE ' . $this->name;
+        $sql = 'DROP TABLE ' . $this->tableName;
+
         return \Aurora\Dbal::query($sql, null, false);
     }
-    
+
     /**
      * Creates the table
      *
@@ -396,23 +413,24 @@ abstract class Table
     final public function createTable()
     {
         $sql = $this->__toString();
+
         return \Aurora\Dbal::query($sql, null, false);
     }
 
     /**
      * Returns the primary key clauses for the creation of the table
      *
-     * @param array $primaryKeys The primary keys
+     * @param  array $primaryKeys The primary keys
      * @return array
      */
     final private function getPrimaryKeyClause($primaryKeys)
     {
         if (count($primaryKeys) < 1) {
-            throw new \RuntimeException($this->name . ' table does not have a primary key.');
+            throw new \RuntimeException($this->tableName . ' table does not have a primary key.');
         }
 
         $fields = join(', ', $primaryKeys);
-        if (count($primaryKeys) == 1 
+        if (count($primaryKeys) == 1
             && (\Aurora\Dbal::getDriver() instanceof \Aurora\Drivers\SQLiteDriver
             || \Aurora\Dbal::getDriver() instanceof \Aurora\Drivers\PostgreSQLDriver)) {
             return array();
@@ -420,7 +438,7 @@ abstract class Table
             return array('PRIMARY KEY (' . $fields . ')');
         }
     }
-    
+
     /**
      * Returns the string representation of the table
      *
@@ -433,8 +451,8 @@ abstract class Table
         $columns = $this->getColumns($constraints, $primaryKeys);
         $pk = $this->getPrimaryKeyClause($primaryKeys);
         $fields = array_merge($columns, $pk, $constraints);
-        
-        $strValue = 'CREATE TABLE ' . $this->name . ' (';
+
+        $strValue = 'CREATE TABLE ' . $this->tableName . ' (';
         $strValue .= join(',', array_map(
             function ($item) {
                 return (string) $item;
@@ -442,10 +460,10 @@ abstract class Table
             $fields
         ));
         $strValue .= ')';
-        
+
         return $strValue;
     }
-    
+
     /**
      * Sets the record as inserted
      */
@@ -453,7 +471,12 @@ abstract class Table
     {
         $this->notInserted = false;
     }
-    
+
+    final public function setLoaded()
+    {
+        $this->loaded = true;
+    }
+
     /**
      * Returns a Query object for the current table
      *
@@ -463,6 +486,26 @@ abstract class Table
     {
         $model = get_called_class();
         $instance = new $model();
-        return new \Aurora\Query($instance->name, $model);
+
+        return new \Aurora\Query($instance->tableName, $model);
+    }
+
+    final public static function queryData($queryType = \PDO::FETCH_OBJ)
+    {
+        $model = get_called_class();
+        $instance = new $model();
+
+        return new \Aurora\DataQuery($instance->tableName, $queryType);
+    }
+
+    public function as_array()
+    {
+        $result = array();
+        $columns = $this->getColumns();
+        foreach ($columns as $column) {
+            $result[$column->name] = $column->value;
+        }
+
+        return $result;
     }
 }

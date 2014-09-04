@@ -47,5 +47,5 @@ interface BaseDriver
      *
      * @return string
      */
-    function getConnection();
+    public function getConnection();
 }

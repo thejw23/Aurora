@@ -45,7 +45,7 @@ namespace Aurora;
  * @package Aurora
  * @author José Miguel Molina
  */
-class Query
+class DataQuery
 {
     /**
      * @var array The query parts
@@ -56,25 +56,21 @@ class Query
     );
 
     /**
-     * @var string The model to use
-     */
-    private $model;
-
-    /**
      * @var array The parameters of the query
      */
     private $params = array();
+
+    public static $queryType;
 
     /**
      * Constructor
      *
      * @param string The table to query
-     * @param string The model to use
      */
-    final public function __construct($table, $model)
+    final public function __construct($table, $queryType = \PDO::FETCH_ASSOC)
     {
         $this->query['table'] = $table;
-        $this->model = $model;
+        static::$queryType = $queryType;
     }
 
     /**
@@ -89,10 +85,24 @@ class Query
         }
 
         return self::getResults(
-            $this->model,
             self::buildQuery($this->query),
             $this->params
         );
+    }
+
+    final public function delete()
+    {
+        return self::getResults(
+            self::buildDeleteQuery($this->query),
+            $this->params
+        );
+    }    
+
+    final public function count($itemToCount = '*')
+    {
+        $this->query['fields'] = 'count('.$itemToCount.') as totalRows';
+
+        return $this->limit(0, 1);
     }
 
     /**
@@ -139,7 +149,6 @@ class Query
         }
 
         $results = self::getResults(
-            $this->model,
             self::buildQuery($this->query),
             $this->params
         );
@@ -165,13 +174,13 @@ class Query
     {
         $params = array();
         $where = \Aurora\SQL\Util::clauseReduce($args, $params);
-        $this->query['where'] = $where;
+        $this->query['where'][] = $where;
         $this->params = array_merge($this->params, $params);
 
         return $this;
     }
 
-    final public function load($id, $column = 'id')
+    final public function loadData($id, $column = 'id')
     {
         $params = array();
         $where = \Aurora\SQL\Util::clauseReduce(array($column, $id), $params);
@@ -194,6 +203,13 @@ class Query
         if (count($params) > 0) {
             $this->params = array_merge($this->params, $params);
         }
+
+        return $this;
+    }
+
+    final public function setFields($fields = array('*'))
+    {
+        $this->query['fields'] = \implode($fields, ',');
 
         return $this;
     }
@@ -230,8 +246,20 @@ class Query
         $sql = 'SELECT ' . $query['fields'] . ' FROM ' .
                 $query['table'];
 
-        if (isset($query['where'])) {
+        if (isset($query['where']) and is_string($query['where'])) {
             $sql .= ' WHERE ' . $query['where'];
+        } elseif (isset($query['where']) and is_array($query['where'])) {
+            $sql .= ' WHERE ';// . $query['where'];
+            $total = count($query['where']);
+            $i = 0;
+            foreach ($query['where'] as $query_where) {
+                $i++;
+                $sql .= $query_where;
+                if ($i != $total) {
+                    $sql .= ' AND ';
+                }
+
+            }
         }
 
         if (isset($query['order_by'])) {
@@ -245,33 +273,45 @@ class Query
         return $sql;
     }
 
+
+
+    final private  static function buildDeleteQuery($query)
+    {
+        $sql = 'DELETE ' . $query['fields'] . ' FROM ' .
+                $query['table'];
+
+        if (isset($query['where']) and is_string($query['where'])) {
+            $sql .= ' WHERE ' . $query['where'];
+        } elseif (isset($query['where']) and is_array($query['where'])) {
+            $sql .= ' WHERE ';// . $query['where'];
+            $total = count($query['where']);
+            $i = 0;
+            foreach ($query['where'] as $query_where) {
+                $i++;
+                $sql .= $query_where;
+                if ($i != $total) {
+                    $sql .= ' AND ';
+                }
+
+            }
+        }
+        return $sql;
+    }
+
     /**
      * Performs the query and returns its results
      *
-     * @param string $model  The model
      * @param string $sql    The sql sentence
      * @param array  $params The parameters
      */
-    final private static function getResults($model, $sql, $params = null)
+    final private static function getResults($sql, $params = null)
     {
         if (count($params) == 0) {
             $params = null;
         }
 
         $rows = \Aurora\Dbal::query($sql, $params);
-        $results = array();
 
-        while ($row = $rows->fetch(\PDO::FETCH_ASSOC)) {
-            $result = new $model();
-            foreach ($row as $key => $val) {
-                $result->$key = $result->parseValue($key, $val);
-                $result->setInserted();
-            }
-            $result->setLoaded();
-            $results[] = $result;
-        }
-        $rows = null;
-
-        return $results;
+        return $rows->fetchAll(static::$queryType);
     }
 }

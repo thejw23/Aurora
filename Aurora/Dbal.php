@@ -53,6 +53,8 @@ class Dbal
      */
     private static $conn = null;
 
+    public static $profiling = FALSE;
+
     /**
      * Constructor
      *
@@ -62,7 +64,7 @@ class Dbal
     {
         // Here be dragons
     }
-    
+
     /**
      * Sets the driver used for the connection
      *
@@ -72,7 +74,7 @@ class Dbal
     {
         self::$driver = $dbDriver;
     }
-    
+
     /**
      * Gets the PDO connection object
      *
@@ -86,21 +88,22 @@ class Dbal
                 \PDO::ATTR_ERRMODE,
                 \PDO::ERRMODE_EXCEPTION
             );
+            self::$conn->setAttribute(\PDO::ATTR_STATEMENT_CLASS, array("\\Aurora\\PDO\\E_PDOStatement", array(self::$conn)));
         } catch (\PDOException $e) {
             throw new \RuntimeException('Unable to establish database connection.' . $e->getMessage());
         }
     }
-    
+
     /**
      * Performs a query on the database
      *
-     * @param string $sentence The SQL query sentece
-     * @param array $params The parameters passed to the query
-     * @param bool $return Does the query return anything?
-     * @param mixed $insertedId Reference to a var where the last inserted id will be stored if applicable
-     * @param string $name The name of the constraint to get the last inserted id. That is only needed in PostgreSQL
+     * @param  string                      $sentence   The SQL query sentece
+     * @param  array                       $params     The parameters passed to the query
+     * @param  bool                        $return     Does the query return anything?
+     * @param  mixed                       $insertedId Reference to a var where the last inserted id will be stored if applicable
+     * @param  string                      $name       The name of the constraint to get the last inserted id. That is only needed in PostgreSQL
      * @return \PDOStatement|null
-     * @throws \RuntimeException If $params is not array or null
+     * @throws \RuntimeException           If $params is not array or null
      * @throws \Aurora\Error\DatabaseError If there is an error with the query
      */
     final public static function query(
@@ -114,12 +117,12 @@ class Dbal
         if (is_null(self::$conn)) {
             self::connect();
         }
-        
+
         // Parameters MUST be array or null
         if (!(is_null($params) || is_array($params))) {
             throw new \RuntimeException('\Aurora\Dbal::query argument $params MUST be an array or null.');
         }
-        
+
         try {
             // If it is an update, insert or delete query begin transaction
             if (!$return) {
@@ -128,8 +131,22 @@ class Dbal
 
             // Prepare the query and execute it
             $stmt = self::$conn->prepare($sentence);
+        
+            if (static::$profiling === TRUE)
+            {
+                \Aurora\Profiler::start();
+            }
+
+
             $result = (is_null($params)) ? $stmt->execute() :
                 $stmt->execute($params);
+          
+            if (static::$profiling === TRUE)
+            {
+                \Aurora\Profiler::stop($stmt->fullQuery);
+            }                
+
+
             if ($result) {
                 // Get the last inserted id if it is a select query
                 if (!$return) {
@@ -137,7 +154,7 @@ class Dbal
                     self::$conn->commit();
                     $stmt = null;
                 }
-                
+
                 return (($return) ? $stmt : true);
             }
         } catch (\PDOException $e) {
@@ -148,7 +165,7 @@ class Dbal
             throw new \RuntimeException('Query error: ' . $e->getMessage());
         }
     }
-    
+
     /**
      * Returns the driver used to connect to de database
      *

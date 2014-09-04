@@ -60,14 +60,14 @@ class ForeignKey
     /**
      * Constructor
      *
-     * @param string $model The referenced model. This is the name of the class that represents the table you're referencing.
-     * @param string $modelField The referenced field of the model.
-     * @param string $field The name of the field to be used as foreign key.
-     * @param string $onDelete Action to perform on delete in the referenced table.
-     * @param string $onUpdate Action to perform on update in the referenced table.
+     * @param  string            $model      The referenced model. This is the name of the class that represents the table you're referencing.
+     * @param  string            $modelField The referenced field of the model.
+     * @param  string            $field      The name of the field to be used as foreign key.
+     * @param  string            $onDelete   Action to perform on delete in the referenced table.
+     * @param  string            $onUpdate   Action to perform on update in the referenced table.
      * @throws \RuntimeException If the class or the field don't exist.
      */
-    public final function __construct(
+    final public function __construct(
         $model,
         $modelField,
         $field,
@@ -103,7 +103,7 @@ class ForeignKey
      *
      * @return string
      */
-    public final function __toString()
+    final public function __toString()
     {
         return 'FOREIGN KEY (' . $this->selfField . ') REFERENCES ' .
                 $this->tableName . '(' . $this->fieldName . ') ON UPDATE ' .

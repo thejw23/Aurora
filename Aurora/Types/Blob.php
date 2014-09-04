@@ -45,14 +45,14 @@ class Blob extends \Aurora\Type
     /**
      * Check if a value is valid for this type
      *
-     * @param mixed $value The value
+     * @param  mixed $value The value
      * @return bool
      */
     public function isValidValue($value)
     {
         return true;
     }
-    
+
     /**
      * Get the type representation e.g. INTEGER, VARCHAR, ...
      *
@@ -61,14 +61,14 @@ class Blob extends \Aurora\Type
     public function getRepresentation()
     {
         $driver = $this->getDriver();
-        
+
         return 'BLOB';
     }
-    
+
     /**
      * Get the actual driver used by the database abstraction layer
      *
-     * @return \Aurora\Drivers\BaseDriver The driver.
+     * @return \Aurora\Drivers\BaseDriver      The driver.
      * @throws \Aurora\Error\DatabaseException if the driver is not configured
      */
     public function parseValue($value)

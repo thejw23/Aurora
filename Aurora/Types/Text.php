@@ -30,81 +30,51 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-namespace Aurora\Drivers;
+namespace Aurora\Types;
 
 /**
- * MySQLDriver
+ * String
  *
- * Driver to connect to MySQL.
+ * String data type.
  *
  * @package Aurora
  * @author José Miguel Molina
  */
-class MySQLDriver implements \Aurora\Drivers\BaseDriver
+class Text extends \Aurora\Type
 {
     /**
-     * @var string Database host
-     */
-    private $host;
-
-    /**
-     * @var string Database name
-     */
-    private $dbname;
-
-    /**
-     * @var int|string Database port
-     */
-    private $port;
-
-    /**
-     * @var string Database user
-     */
-    private $user;
-
-    /**
-     * @var string Database password
-     */
-    private $password;
-
-    /**
-     * @var string Connection encoding
-     */
-    private $encoding;
-
-    /**
-     * Constructor
+     * Check if a value is valid for this type
      *
-     * @param string     $host     The database host
-     * @param string     $dbname   The database name
-     * @param int|string $port     The database port
-     * @param string     $user     The database user
-     * @param string     $password The database password
+     * @param  mixed $value The value
+     * @return bool
      */
-    public function __construct($host, $dbname, $port, $user, $password, $encoding = 'UTF8')
+    public function isValidValue($value)
     {
-        $this->host = $host;
-        $this->dbname = $dbname;
-        $this->port = (int) $port;
-        $this->user = $user;
-        $this->password = $password;
-        $this->encoding = $encoding;
+        return is_string($value);
     }
 
     /**
-     * Returns the connection string to use with PDO
+     * Get the type representation e.g. INTEGER, VARCHAR, ...
      *
      * @return string
      */
-    public function getConnection()
+    public function getRepresentation()
     {
-        $pdo = new \PDO(
-            'mysql:host=' . $this->host . ';dbname=' . $this->dbname .
-            ';port=' . $this->port,
-            $this->user,
-            $this->password,
-            array(\PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8")
-        );
-        return $pdo;
+        return 'TEXT';
+    }
+
+    /**
+     * Parse a value before inserting it into the database
+     *
+     * @param  mixed $value The value
+     * @return mixed The parsed value
+     */
+    public function parseValue($value)
+    {
+        if (is_null($value)) {
+            return NULL;
+        } else {
+            return (string) $value;
+        }
     }
 }

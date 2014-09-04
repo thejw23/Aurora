@@ -70,10 +70,10 @@ class Relationship
     /**
      * Constructor
      *
-     * @param string $model The name of the model used in the relationship
+     * @param string $model      The name of the model used in the relationship
      * @param string $modelField The field of the model linked to the foreign key
      * @param string $foreignKey The foreign key of the table where you set that relationship
-     * @param bool $single If the relationship can contains a single value or not
+     * @param bool   $single     If the relationship can contains a single value or not
      */
     final public function __construct($model, $modelField, $foreignKey, $single = true)
     {
@@ -86,7 +86,7 @@ class Relationship
     /**
      * Checks for the existance of the property
      *
-     * @param string $property The property
+     * @param  string $property The property
      * @return bool
      */
     final public function __isset($property)
@@ -97,11 +97,11 @@ class Relationship
     /**
      * Returns the value of a property
      *
-     * @param string $property The property
+     * @param  string            $property The property
      * @return mixed
      * @throws \RuntimeException If the property does not exist
      */
-    public final function __get($property)
+    final public function __get($property)
     {
         if ($this->__isset($property)) {
             return $this->$property;
@@ -109,7 +109,7 @@ class Relationship
             throw new \RuntimeException($property . ' property does not exist.');
         }
     }
-    
+
     /**
      * Returns the foreign key
      *

@@ -52,7 +52,7 @@ abstract class Type
     /**
      * Check if a value is valid for this type
      *
-     * @param mixed $value The value
+     * @param  mixed $value The value
      * @return bool
      */
     abstract public function isValidValue($value);
@@ -60,22 +60,24 @@ abstract class Type
     /**
      * Parse a value before inserting it into the database
      *
-     * @param mixed $value The value
+     * @param  mixed $value The value
      * @return mixed The parsed value
      */
     abstract public function parseValue($value);
-    
+
     /**
      * Get the actual driver used by the database abstraction layer
      *
-     * @return \Aurora\Drivers\BaseDriver The driver.
+     * @return \Aurora\Drivers\BaseDriver      The driver.
      * @throws \Aurora\Error\DatabaseException if the driver is not configured
      */
-    final public function getDriver() {
+    final public function getDriver()
+    {
         $driver = \Aurora\Dbal::getDriver();
         if (is_null($driver)) {
             throw new \Aurora\Error\DatabaseException('Database driver must be configured before the creation of any \Aurora\Type instance.');
         }
+
         return $driver;
     }
 }
